@@ -1,5 +1,4 @@
 export default async function handler(req, res) {
-    // Izinkan CORS dari semua origin (frontend bisa akses)
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -12,7 +11,8 @@ export default async function handler(req, res) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'x-license-key': process.env.CASHIFY_LICENSE
+                // DISINI SALAHNYA: Ganti kode di bawah dengan LISENSI asli dari Dashboard Cashify (bukan QRIS ID)
+                'x-license-key': 'cashify_b655d2c0e1dcf9d13b08b50447cdeccde5033f449e39a092c0b76834ebb7358c' 
             },
             body: JSON.stringify(req.body)
         });
