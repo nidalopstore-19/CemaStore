@@ -49,8 +49,11 @@
         .amount-highlight { background: #0b0d0f; border: 2px dashed #f5b041; border-radius: 12px; padding: 12px 20px; text-align: center; margin: 12px 0; }
         .amount-highlight span { display: block; font-size: 11px; color: #8e959e; margin-bottom: 4px; }
         .amount-highlight strong { color: #f5b041; font-size: 22px; }
-        .unique-note { font-size: 11px; color: #8e959e; text-align: center; margin-bottom: 15px; line-height: 1.6; }
-        .unique-note b { color: #f5b041; }
+        
+        /* DETAIL BOX STYLE */
+        .detail-box { text-align: left; background: #0b0d0f; padding: 15px; border-radius: 16px; border: 1px solid #242a32; margin: 15px 0; font-size: 12px; line-height: 1.8; }
+        .detail-item { display: flex; justify-content: space-between; color: #8e959e; }
+        .detail-item span:last-child { color: #fff; font-weight: 600; }
 
         .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.8s linear infinite; vertical-align: middle; margin-right: 6px; }
         @keyframes spin { to { transform: rotate(360deg); } }
@@ -76,7 +79,6 @@
 <button class="btn-cek-nav" onclick="openInvoiceModal()">🔍 CEK INVOICE / AMBIL AKUN</button>
 <div id="productList"></div>
 
-<!-- Modal Pembayaran -->
 <div id="paymentModal" class="modal">
     <div class="modal-content">
         <div id="step-input">
@@ -94,11 +96,20 @@
             <h3>Scan QRIS untuk Bayar</h3>
             <p style="font-size:12px; color:#8e959e; margin-top:6px;">Gunakan e-wallet apapun yang mendukung QRIS</p>
             <div class="qris-box"><div id="qrisCanvas"></div></div>
+            
+            <div class="detail-box">
+                <div style="color: #f5b041; font-weight: 800; margin-bottom: 5px; border-bottom: 1px solid #242a32;">Detail Transaksi:</div>
+                <div class="detail-item"><span>• ID:</span> <span id="detId" style="font-size:10px;">-</span></div>
+                <div class="detail-item"><span>• Jumlah:</span> <span id="detHarga">-</span></div>
+                <div class="detail-item"><span>• Fee Admin:</span> <span id="detFee">-</span></div>
+                <div class="detail-item"><span>• Kode Unik:</span> <span id="detUnik" style="color:#10b981;">-</span></div>
+                <div class="detail-item"><span>• Waktu:</span> <span id="detWaktu">-</span></div>
+            </div>
+
             <div class="amount-highlight">
                 <span>Total yang harus dibayar</span>
                 <strong id="totalAmountDisplay">Rp 0</strong>
             </div>
-            <p class="unique-note">Nominal sudah ditambah <b id="uniqueCodeDisplay">kode unik</b><br>agar transaksimu terdeteksi otomatis</p>
             <button class="btn-buy" disabled style="background:#242a32;">
                 <span class="spinner"></span>MENUNGGU PEMBAYARAN...
             </button>
@@ -117,7 +128,6 @@
     </div>
 </div>
 
-<!-- Modal Invoice -->
 <div id="invoiceModal" class="modal">
     <div class="modal-content">
         <h2>Cek Invoice</h2>
@@ -129,18 +139,14 @@
 </div>
 
 <script>
-    // ── KONFIGURASI ──────────────────────────────────────────
-    const BASE_URL    = "https://toko-tama-default-rtdb.asia-southeast1.firebasedatabase.app/";
-    // Cashify dipanggil via /api/ proxy di Vercel — license key ada di environment variable server
+    const BASE_URL = "https://toko-tama-default-rtdb.asia-southeast1.firebasedatabase.app/";
     const CASHIFY_QRIS_ID = "8aa46a5a-ac64-44b4-b20d-2d1e1bbe1ec1";
 
-    // ── STATE ────────────────────────────────────────────────
     const produkCache = {};
     let selectedProdId, selectedAkunId, selectedDataAkun, hargaFix;
     let cashifyTransactionId = null;
-    let pollingInterval      = null;
+    let pollingInterval = null;
 
-    // ── TOAST ────────────────────────────────────────────────
     function showToast(msg, type = "error") {
         const t = document.getElementById('errorToast');
         t.innerText = msg;
@@ -149,7 +155,6 @@
         setTimeout(() => t.classList.remove('show'), 3500);
     }
 
-    // ── LOAD PRODUK dari Firebase ────────────────────────────
     async function fetchProducts() {
         const container = document.getElementById('productList');
         container.innerHTML = '<p style="text-align:center; color:#8e959e;">Memuat produk...</p>';
@@ -172,17 +177,16 @@
             Object.keys(dataP).forEach(id => {
                 tP++;
                 const listAkun = dataS[id] ? Object.keys(dataS[id]) : [];
-                const jmlStok  = listAkun.length;
+                const jmlStok = listAkun.length;
                 if (jmlStok > 0) { tT++; tS += jmlStok; }
 
-                // Simpan ke JS cache — aman dari karakter spesial
                 produkCache[id] = {
-                    nama  : dataP[id].nama,
+                    nama : dataP[id].nama,
                     harga : dataP[id].harga,
-                    stok  : dataS[id] || {}
+                    stok : dataS[id] || {}
                 };
 
-                const hargaAngka   = String(dataP[id].harga).replace(/\D/g, '');
+                const hargaAngka = String(dataP[id].harga).replace(/\D/g, '');
                 const hargaDisplay = "Rp " + parseInt(hargaAngka || 0).toLocaleString('id-ID');
 
                 const card = document.createElement('div');
@@ -198,135 +202,120 @@
                 container.appendChild(card);
             });
 
-            document.getElementById('totalProd').innerText     = tP;
-            document.getElementById('totalStok').innerText     = tS;
+            document.getElementById('totalProd').innerText = tP;
+            document.getElementById('totalStok').innerText = tS;
             document.getElementById('totalTersedia').innerText = tT;
 
         } catch (e) {
-            console.error(e);
             container.innerHTML = '<p style="text-align:center; color:#ef4444;">Gagal memuat produk.</p>';
         }
     }
 
-    // ── BUKA MODAL PEMBAYARAN ────────────────────────────────
     function openPayment(id) {
-        const produk   = produkCache[id];
+        const produk = produkCache[id];
         const listAkun = Object.keys(produk.stok);
         if (listAkun.length === 0) return showToast('Stok habis!');
 
-        selectedProdId   = id;
-        selectedAkunId   = listAkun[0];
+        selectedProdId = id;
+        selectedAkunId = listAkun[0];
         selectedDataAkun = produk.stok[selectedAkunId];
-        hargaFix         = parseInt(String(produk.harga).replace(/\D/g, ''));
+        hargaFix = parseInt(String(produk.harga).replace(/\D/g, ''));
 
-        document.getElementById('step-input').style.display   = 'block';
-        document.getElementById('step-qris').style.display    = 'none';
+        document.getElementById('step-input').style.display = 'block';
+        document.getElementById('step-qris').style.display = 'none';
         document.getElementById('step-success').style.display = 'none';
-        document.getElementById('btnClose').style.display     = 'block';
-        document.getElementById('buyerName').value            = '';
-        document.getElementById('buyerEmail').value           = '';
-        document.getElementById('qrisCanvas').innerHTML       = '';
-        document.getElementById('btnLanjutkan').disabled      = false;
-        document.getElementById('btnLanjutkan').innerHTML     = 'Lanjutkan Pembayaran';
-        cashifyTransactionId = null;
+        document.getElementById('btnClose').style.display = 'block';
+        document.getElementById('buyerName').value = '';
+        document.getElementById('buyerEmail').value = '';
+        document.getElementById('qrisCanvas').innerHTML = '';
+        document.getElementById('btnLanjutkan').disabled = false;
+        document.getElementById('btnLanjutkan').innerHTML = 'Lanjutkan Pembayaran';
 
         document.getElementById('payTitle').innerText = produk.nama;
         document.getElementById('payPrice').innerText = "Rp " + hargaFix.toLocaleString('id-ID');
         document.getElementById('paymentModal').style.display = 'block';
     }
 
-    // ── STEP 2: GENERATE QRIS via proxy /api/generate ───────
     async function tampilkanQRIS() {
-        const nama  = document.getElementById('buyerName').value.trim();
+        const nama = document.getElementById('buyerName').value.trim();
         const email = document.getElementById('buyerEmail').value.trim();
-        if (!nama)  return showToast("Isi Nama terlebih dahulu!");
-        if (!email) return showToast("Isi Email terlebih dahulu!");
+        if (!nama || !email) return showToast("Isi Nama & Email!");
 
         const btn = document.getElementById('btnLanjutkan');
-        btn.disabled  = true;
+        btn.disabled = true;
         btn.innerHTML = '<span class="spinner"></span>Membuat QRIS...';
 
         try {
-            // Panggil /api/generate (Vercel serverless proxy)
             const res = await fetch('/api/generate', {
                 method : 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body   : JSON.stringify({
-                    id              : CASHIFY_QRIS_ID,
-                    amount          : hargaFix,
-                    useUniqueCode   : true,
-                    packageIds      : ["id.dana"],
+                body : JSON.stringify({
+                    id : CASHIFY_QRIS_ID,
+                    amount : hargaFix,
+                    useUniqueCode : true,
+                    packageIds : ["id.dana"],
                     expiredInMinutes: 15
                 })
             });
 
             const json = await res.json();
-            if (!json.data || !json.data.qr_string) {
-                throw new Error(json.message || json.error || "Response tidak valid");
-            }
-
             const { qr_string, transactionId, totalAmount, uniqueNominal } = json.data;
             cashifyTransactionId = transactionId;
 
-            document.getElementById('step-input').style.display = 'none';
-            document.getElementById('step-qris').style.display  = 'block';
+            // HITUNG FEE (Sesuaikan dengan file keuntungan.html)
+            const feeAdmin = Math.round((hargaFix * 0.05) + 1000); 
 
-            // Render QR dari qr_string
+            document.getElementById('step-input').style.display = 'none';
+            document.getElementById('step-qris').style.display = 'block';
+
             document.getElementById('qrisCanvas').innerHTML = '';
             new QRCode(document.getElementById('qrisCanvas'), {
-                text        : qr_string,
-                width       : 220,
-                height      : 220,
-                colorDark   : "#000000",
-                colorLight  : "#ffffff",
-                correctLevel: QRCode.CorrectLevel.M
+                text : qr_string,
+                width : 220,
+                height : 220,
+                colorDark : "#000000",
+                colorLight : "#ffffff"
             });
 
-            document.getElementById('totalAmountDisplay').innerText =
-                "Rp " + totalAmount.toLocaleString('id-ID');
-            document.getElementById('uniqueCodeDisplay').innerText =
-                "Rp " + uniqueNominal + " sebagai kode unik";
+            // UPDATE DETAIL BOX
+            document.getElementById('detId').innerText = transactionId;
+            document.getElementById('detHarga').innerText = "Rp " + hargaFix.toLocaleString('id-ID');
+            document.getElementById('detFee').innerText = "Rp " + feeAdmin.toLocaleString('id-ID');
+            document.getElementById('detUnik').innerText = "Rp " + uniqueNominal;
+            document.getElementById('detWaktu').innerText = new Date().toLocaleString('id-ID');
+
+            const totalFinal = hargaFix + feeAdmin + uniqueNominal;
+            document.getElementById('totalAmountDisplay').innerText = "Rp " + totalFinal.toLocaleString('id-ID');
 
             mulaiPolling();
 
         } catch (e) {
-            console.error(e);
-            showToast("Gagal membuat QRIS: " + e.message);
-            btn.disabled  = false;
-            btn.innerHTML = 'Lanjutkan Pembayaran';
+            showToast("Gagal membuat QRIS.");
+            btn.disabled = false;
         }
     }
 
-    // ── POLLING via proxy /api/check-status ─────────────────
     function mulaiPolling() {
         if (pollingInterval) clearInterval(pollingInterval);
-
         pollingInterval = setInterval(async () => {
             if (!cashifyTransactionId) return;
             try {
-                const res  = await fetch('/api/check-status', {
+                const res = await fetch('/api/check-status', {
                     method : 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body   : JSON.stringify({ transactionId: cashifyTransactionId })
+                    body : JSON.stringify({ transactionId: cashifyTransactionId })
                 });
-                const json   = await res.json();
+                const json = await res.json();
                 const status = json.data?.status?.toLowerCase();
 
                 if (status === 'paid' || status === 'success') {
                     clearInterval(pollingInterval);
-                    pollingInterval = null;
                     prosesLunas();
-                } else if (status === 'expired' || status === 'cancel') {
-                    clearInterval(pollingInterval);
-                    pollingInterval = null;
-                    showToast("Transaksi expired. Silakan buat transaksi baru.");
-                    setTimeout(closeModal, 2500);
                 }
-            } catch (e) { console.error("Polling error:", e); }
+            } catch (e) {}
         }, 5000);
     }
 
-    // ── STEP 3: PROSES LUNAS ─────────────────────────────────
     async function prosesLunas() {
         const trxId = "TRX-" + Math.floor(100000 + Math.random() * 900000);
         try {
@@ -334,88 +323,67 @@
             await fetch(`${BASE_URL}transaksi/${trxId}.json`, {
                 method : 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body   : JSON.stringify({
-                    produk      : document.getElementById('payTitle').innerText,
-                    data        : selectedDataAkun,
-                    nama        : document.getElementById('buyerName').value,
-                    email       : document.getElementById('buyerEmail').value,
+                body : JSON.stringify({
+                    produk : document.getElementById('payTitle').innerText,
+                    harga : hargaFix, // DISIMPAN BIAR NYAMBUNG KE WEB CUAN
+                    data : selectedDataAkun,
+                    nama : document.getElementById('buyerName').value,
+                    email : document.getElementById('buyerEmail').value,
                     cashifyTrxId: cashifyTransactionId,
-                    tanggal     : new Date().toLocaleString('id-ID')
+                    tanggal : new Date().toLocaleString('id-ID')
                 })
             });
 
-            document.getElementById('step-qris').style.display    = 'none';
+            document.getElementById('step-qris').style.display = 'none';
             document.getElementById('step-success').style.display = 'block';
-            document.getElementById('btnClose').style.display     = 'none';
-            document.getElementById('trxIdDisp').innerText        = "ID Transaksi: " + trxId;
-            document.getElementById('finalData').innerText        = selectedDataAkun;
+            document.getElementById('btnClose').style.display = 'none';
+            document.getElementById('trxIdDisp').innerText = "ID Transaksi: " + trxId;
+            document.getElementById('finalData').innerText = selectedDataAkun;
             showToast("Pembayaran berhasil! 🎉", "success");
 
         } catch (e) {
-            console.error(e);
-            showToast("Pembayaran OK, tapi gagal simpan. Hubungi admin.");
+            showToast("Gagal simpan transaksi.");
         }
     }
 
-    // ── CLOSE MODAL + CANCEL via proxy ───────────────────────
     async function closeModal() {
-        if (pollingInterval) { clearInterval(pollingInterval); pollingInterval = null; }
-
+        if (pollingInterval) clearInterval(pollingInterval);
         if (cashifyTransactionId) {
             try {
                 await fetch('/api/cancel-status', {
                     method : 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body   : JSON.stringify({ transactionId: cashifyTransactionId })
+                    body : JSON.stringify({ transactionId: cashifyTransactionId })
                 });
-            } catch (e) { console.error("Cancel error:", e); }
-            cashifyTransactionId = null;
+            } catch (e) {}
         }
         document.getElementById('paymentModal').style.display = 'none';
     }
 
-    // ── CEK INVOICE ───────────────────────────────────────────
     async function cariInvoice() {
-        const id  = document.getElementById('inputTrxId').value.trim().toUpperCase();
+        const id = document.getElementById('inputTrxId').value.trim().toUpperCase();
         const box = document.getElementById('invoiceResult');
-        if (!id) return showToast("Masukkan ID transaksi!");
-        box.innerHTML = '<p style="color:#8e959e; font-size:13px;"><span class="spinner"></span>Mencari...</p>';
+        if (!id) return showToast("Masukkan ID!");
+        box.innerHTML = 'Mencari...';
         try {
-            const res  = await fetch(`${BASE_URL}transaksi/${id}.json`);
+            const res = await fetch(`${BASE_URL}transaksi/${id}.json`);
             const data = await res.json();
             if (!data) {
-                box.innerHTML = '<p style="color:#ef4444; text-align:center; font-size:13px;">❌ Invoice tidak ditemukan.</p>';
+                box.innerHTML = '❌ Tidak ditemukan.';
                 return;
             }
-            box.innerHTML = `
-                <div class="data-box" style="line-height:2;">
-                    <div><span style="color:#8e959e">Nama:</span> ${data.nama}</div>
-                    <div><span style="color:#8e959e">Produk:</span> ${data.produk}</div>
-                    <div><span style="color:#8e959e">Tanggal:</span> ${data.tanggal}</div>
-                    <div style="margin-top:10px; padding-top:10px; border-top:1px dashed #242a32;">
-                        <span style="color:#8e959e">Data Akun:</span><br>${data.data}
-                    </div>
-                </div>`;
-        } catch (e) {
-            box.innerHTML = '<p style="color:#ef4444; font-size:13px;">Gagal mengambil data.</p>';
-        }
+            box.innerHTML = `<div class="data-box">Produk: ${data.produk}<br>Data: ${data.data}</div>`;
+        } catch (e) { box.innerHTML = 'Error.'; }
     }
 
-    function openInvoiceModal() {
-        document.getElementById('invoiceResult').innerHTML = '';
-        document.getElementById('inputTrxId').value = '';
-        document.getElementById('invoiceModal').style.display = 'block';
-    }
+    function openInvoiceModal() { document.getElementById('invoiceModal').style.display = 'block'; }
     function closeInvoiceModal() { document.getElementById('invoiceModal').style.display = 'none'; }
-
     function copyData() {
         navigator.clipboard.writeText(document.getElementById('finalData').innerText)
-            .then(() => showToast("Berhasil disalin!", "success"))
-            .catch(() => showToast("Gagal menyalin."));
+            .then(() => showToast("Disalin!", "success"));
     }
 
     fetchProducts();
 </script>
 </body>
 </html>
-
