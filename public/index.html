@@ -3,62 +3,149 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Toko Tama Premium</title>
+    <title>Toko Tama Premium | Digital Store</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-        body { background-color: #0b0d0f; color: #ffffff; padding: 20px; max-width: 500px; margin: auto; overflow-x: hidden; }
+        :root {
+            --primary: #f5b041;
+            --bg-dark: #0b0d0f;
+            --card-bg: #161a1e;
+            --border: #242a32;
+            --text-gray: #8e959e;
+            --success: #10b981;
+            --danger: #ef4444;
+        }
 
-        .toast { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); background: #ef4444; color: white; padding: 12px 25px; border-radius: 12px; font-size: 13px; font-weight: bold; z-index: 10000; transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 10px 20px rgba(239, 68, 68, 0.2); white-space: nowrap; }
-        .toast.show { top: 30px; }
-        .toast.success { background: #10b981; }
-
-        .header { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; margin-bottom: 25px; text-align: center; }
-        .profile-img { width: 80px; height: 80px; border-radius: 50%; border: 2px solid #f5b041; background: #222; overflow: hidden; }
-        .store-name { font-size: 1.4rem; font-weight: 700; }
-
-        .btn-cek-nav { background: #161a1e; border: 1px solid #242a32; color: #f5b041; padding: 12px; border-radius: 15px; width: 100%; margin-bottom: 20px; font-size: 13px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: 0.2s; }
-        .btn-cek-nav:active { transform: scale(0.98); background: #1c2127; }
-
-        .stats-container { display: flex; justify-content: space-around; background: #161a1e; padding: 15px; border-radius: 12px; margin: 20px 0; border: 1px solid #242a32; }
-        .stat-box { text-align: center; }
-        .stat-val { font-size: 20px; font-weight: bold; color: #f5b041; }
-        .stat-label { font-size: 11px; color: #8e959e; text-transform: uppercase; margin-top: 5px; }
-
-        #productList { display: flex; flex-direction: column; gap: 15px; }
-        .card { background: #161a1e; border: 1px solid #242a32; border-radius: 20px; padding: 20px; position: relative; transition: 0.2s; cursor: pointer; }
-        .card:active { transform: scale(0.98); }
-        .card-title { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
-        .price { color: #f5b041; font-size: 18px; font-weight: 800; }
-        .stock-tag { position: absolute; top: 15px; right: 15px; font-size: 10px; font-weight: 700; padding: 2px 10px; border-radius: 12px; }
-        .tag-red { background: rgba(127, 29, 29, 0.3); color: #ef4444; }
-        .tag-green { background: rgba(6, 78, 59, 0.3); color: #10b981; }
-
-        .modal { display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(10px); }
-        .modal-content { position: fixed; bottom: 0; width: 100%; background: #161a1e; padding: 25px 25px 40px 25px; border-radius: 35px 35px 0 0; border-top: 1px solid #242a32; max-width: 500px; left: 50%; transform: translateX(-50%); animation: slideUp 0.4s cubic-bezier(0.25, 1, 0.5, 1); max-height: 90vh; overflow-y: auto; }
-        @keyframes slideUp { from { transform: translate(-50%, 100%); } to { transform: translate(-50%, 0); } }
-
-        .input-label { font-size: 11px; color: #f5b041; margin-bottom: 8px; text-transform: uppercase; font-weight: 800; display: block; }
-        .sheet-input { width: 100%; background: #0b0d0f; border: 2px solid #242a32; padding: 16px; color: white; border-radius: 16px; outline: none; font-size: 14px; margin-bottom: 15px; }
-        .sheet-input:focus { border-color: #f5b041; }
-
-        .btn-buy { background: #4f46e5; color: white; border: none; padding: 18px; width: 100%; border-radius: 18px; font-weight: bold; cursor: pointer; font-size: 15px; transition: 0.2s; }
-        .btn-buy:disabled { opacity: 0.6; cursor: not-allowed; }
-
-        .qris-box { background: white; border-radius: 20px; padding: 15px; margin: 15px auto; width: fit-content; }
-        .amount-highlight { background: #0b0d0f; border: 2px dashed #f5b041; border-radius: 12px; padding: 12px 20px; text-align: center; margin: 12px 0; }
-        .amount-highlight span { display: block; font-size: 11px; color: #8e959e; margin-bottom: 4px; }
-        .amount-highlight strong { color: #f5b041; font-size: 22px; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', 'Segoe UI', sans-serif; }
         
-        /* DETAIL BOX STYLE */
-        .detail-box { text-align: left; background: #0b0d0f; padding: 15px; border-radius: 16px; border: 1px solid #242a32; margin: 15px 0; font-size: 12px; line-height: 1.8; }
-        .detail-item { display: flex; justify-content: space-between; color: #8e959e; }
+        body { 
+            background-color: var(--bg-dark); 
+            color: #ffffff; 
+            padding: 20px; 
+            max-width: 500px; 
+            margin: auto; 
+            min-height: 100vh;
+        }
+
+        /* Toast Notification */
+        .toast { 
+            position: fixed; top: -100px; left: 50%; transform: translateX(-50%); 
+            background: var(--danger); color: white; padding: 14px 25px; 
+            border-radius: 12px; font-size: 13px; font-weight: 600; 
+            z-index: 10001; transition: 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55); 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
+        }
+        .toast.show { top: 30px; }
+        .toast.success { background: var(--success); }
+
+        /* Header Section */
+        .header { text-align: center; margin: 30px 0; }
+        .profile-img { 
+            width: 90px; height: 90px; border-radius: 50%; 
+            border: 3px solid var(--primary); margin-bottom: 15px;
+            object-fit: cover; box-shadow: 0 0 20px rgba(245, 176, 65, 0.2);
+        }
+        .store-name { font-size: 1.6rem; font-weight: 800; letter-spacing: -0.5px; }
+
+        /* Stats Card */
+        .stats-container { 
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            background: var(--card-bg); padding: 20px; 
+            border-radius: 20px; margin-bottom: 25px; border: 1px solid var(--border); 
+        }
+        .stat-box { text-align: center; border-right: 1px solid var(--border); }
+        .stat-box:last-child { border-right: none; }
+        .stat-val { font-size: 18px; font-weight: 800; color: var(--primary); }
+        .stat-label { font-size: 10px; color: var(--text-gray); text-transform: uppercase; margin-top: 4px; }
+
+        .btn-cek-nav { 
+            background: linear-gradient(145deg, #1c2127, #161a1e);
+            border: 1px solid var(--border); color: var(--primary); 
+            padding: 16px; border-radius: 18px; width: 100%; 
+            margin-bottom: 25px; font-size: 13px; font-weight: bold; 
+            cursor: pointer; transition: 0.3s;
+        }
+        .btn-cek-nav:hover { background: var(--border); border-color: var(--primary); }
+
+        /* Product Cards */
+        #productList { display: flex; flex-direction: column; gap: 12px; }
+        .card { 
+            background: var(--card-bg); border: 1px solid var(--border); 
+            border-radius: 22px; padding: 20px; position: relative; 
+            transition: all 0.2s ease; cursor: pointer;
+        }
+        .card:hover { border-color: var(--primary); transform: translateY(-2px); }
+        .card-title { font-size: 15px; font-weight: 600; margin-bottom: 6px; color: #eee; }
+        .price { color: var(--primary); font-size: 20px; font-weight: 800; }
+        
+        .stock-tag { 
+            position: absolute; top: 20px; right: 20px; 
+            font-size: 10px; font-weight: 700; padding: 4px 12px; border-radius: 10px; 
+        }
+        .tag-red { background: rgba(239, 68, 68, 0.15); color: var(--danger); }
+        .tag-green { background: rgba(16, 185, 129, 0.15); color: var(--success); }
+
+        /* Modal Design */
+        .modal { 
+            display: none; position: fixed; z-index: 9999; 
+            left: 0; top: 0; width: 100%; height: 100%; 
+            background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); 
+        }
+        .modal-content { 
+            position: fixed; bottom: 0; width: 100%; 
+            background: var(--card-bg); padding: 30px; 
+            border-radius: 30px 30px 0 0; border-top: 2px solid var(--border); 
+            max-width: 500px; left: 50%; transform: translateX(-50%);
+            animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        @keyframes slideUp { from { transform: translate(-50%, 100%); } }
+
+        .sheet-input { 
+            width: 100%; background: var(--bg-dark); border: 2px solid var(--border); 
+            padding: 16px; color: white; border-radius: 15px; 
+            outline: none; font-size: 14px; margin: 8px 0 20px 0; 
+            transition: 0.3s;
+        }
+        .sheet-input:focus { border-color: var(--primary); }
+
+        .btn-buy { 
+            background: #4f46e5; color: white; border: none; 
+            padding: 18px; width: 100%; border-radius: 16px; 
+            font-weight: 700; cursor: pointer; font-size: 15px; 
+            transition: 0.3s;
+        }
+        .btn-buy:active { transform: scale(0.96); }
+
+        /* QRIS Styling */
+        .qris-box { 
+            background: white; border-radius: 20px; padding: 15px; 
+            margin: 20px auto; width: fit-content; border: 4px solid var(--primary);
+        }
+        .detail-box { 
+            background: var(--bg-dark); padding: 15px; border-radius: 15px; 
+            border: 1px solid var(--border); margin: 20px 0; font-size: 12px; 
+        }
+        .detail-item { display: flex; justify-content: space-between; margin-bottom: 8px; color: var(--text-gray); }
         .detail-item span:last-child { color: #fff; font-weight: 600; }
 
-        .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.8s linear infinite; vertical-align: middle; margin-right: 6px; }
+        .amount-highlight { 
+            background: rgba(245, 176, 65, 0.1); border: 2px dashed var(--primary); 
+            border-radius: 15px; padding: 15px; text-align: center; margin-bottom: 20px; 
+        }
+        .amount-highlight strong { color: var(--primary); font-size: 24px; display: block; }
+
+        .spinner { 
+            width: 18px; height: 18px; border: 3px solid rgba(255,255,255,0.2); 
+            border-top-color: #fff; border-radius: 50%; animation: spin 0.8s linear infinite; 
+            display: inline-block; margin-right: 8px; vertical-align: middle;
+        }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        .data-box { background: #0b0d0f; border: 2px dashed #f5b041; padding: 18px; border-radius: 16px; margin-top: 20px; color: #f5b041; font-family: monospace; font-size: 14px; word-break: break-all; }
+        .data-box { 
+            background: #000; border: 1px solid var(--primary); padding: 20px; 
+            border-radius: 15px; margin-top: 15px; color: var(--primary); 
+            font-family: 'Courier New', monospace; font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -66,87 +153,91 @@
 <div id="errorToast" class="toast">Pesan Error</div>
 
 <div class="header">
-    <div class="profile-img"><img src="https://via.placeholder.com/150" width="100%"></div>
-    <div class="store-name">Toko Tama Premium</div>
+    <img src="https://via.placeholder.com/150" class="profile-img" alt="Logo">
+    <div class="store-name">TAMA PREMIUM</div>
+    <p style="color: var(--text-gray); font-size: 12px; margin-top: 5px;">Automated Account Store</p>
 </div>
 
 <div class="stats-container">
-    <div class="stat-box"><div class="stat-val" id="totalProd">0</div><div class="stat-label">Total</div></div>
+    <div class="stat-box"><div class="stat-val" id="totalProd">0</div><div class="stat-label">Produk</div></div>
     <div class="stat-box"><div class="stat-val" id="totalStok">0</div><div class="stat-label">Ready</div></div>
-    <div class="stat-box"><div class="stat-val" id="totalTersedia">0</div><div class="stat-label">Produk</div></div>
+    <div class="stat-box"><div class="stat-val" id="totalTersedia">0</div><div class="stat-label">Kategori</div></div>
 </div>
 
 <button class="btn-cek-nav" onclick="openInvoiceModal()">🔍 CEK INVOICE / AMBIL AKUN</button>
+
 <div id="productList"></div>
 
 <div id="paymentModal" class="modal">
     <div class="modal-content">
         <div id="step-input">
-            <h2 id="payTitle">Produk</h2>
-            <p style="font-size:13px; color:#8e959e; margin-bottom:25px;">Masukkan data untuk menerima akun</p>
-            <label class="input-label">Nama Lengkap</label>
-            <input type="text" id="buyerName" class="sheet-input" placeholder="Nama kamu">
-            <label class="input-label">Email Aktif</label>
-            <input type="email" id="buyerEmail" class="sheet-input" placeholder="email@contoh.com">
-            <div id="payPrice" style="font-size:24px; font-weight:900; margin-bottom:25px; color:#f5b041; text-align:center;"></div>
-            <button class="btn-buy" id="btnLanjutkan" onclick="tampilkanQRIS()">Lanjutkan Pembayaran</button>
+            <h2 id="payTitle" style="margin-bottom: 5px;">Detail Pesanan</h2>
+            <p style="font-size:13px; color:var(--text-gray); margin-bottom:25px;">Akun akan dikirim langsung setelah bayar</p>
+            
+            <label style="font-size: 11px; font-weight: 700; color: var(--primary);">NAMA PEMBELI</label>
+            <input type="text" id="buyerName" class="sheet-input" placeholder="Contoh: Budi">
+            
+            <label style="font-size: 11px; font-weight: 700; color: var(--primary);">EMAIL AKTIF</label>
+            <input type="email" id="buyerEmail" class="sheet-input" placeholder="email@gmail.com">
+            
+            <div id="payPrice" style="font-size:26px; font-weight:900; margin: 10px 0 25px 0; color:var(--primary); text-align:center;"></div>
+            
+            <button class="btn-buy" id="btnLanjutkan" onclick="tampilkanQRIS()">Lanjutkan ke Pembayaran</button>
         </div>
 
         <div id="step-qris" style="display:none; text-align:center;">
-            <h3>Scan QRIS untuk Bayar</h3>
-            <p style="font-size:12px; color:#8e959e; margin-top:6px;">Gunakan e-wallet apapun yang mendukung QRIS</p>
+            <h3>Selesaikan Pembayaran</h3>
             <div class="qris-box"><div id="qrisCanvas"></div></div>
             
-            <div class="detail-box">
-                <div style="color: #f5b041; font-weight: 800; margin-bottom: 5px; border-bottom: 1px solid #242a32;">Detail Transaksi:</div>
-                <div class="detail-item"><span>• ID:</span> <span id="detId" style="font-size:10px;">-</span></div>
-                <div class="detail-item"><span>• Jumlah:</span> <span id="detHarga">-</span></div>
-                <div class="detail-item"><span>• Fee Admin:</span> <span id="detFee">-</span></div>
-                <div class="detail-item"><span>• Kode Unik:</span> <span id="detUnik" style="color:#10b981;">-</span></div>
-                <div class="detail-item"><span>• Waktu:</span> <span id="detWaktu">-</span></div>
-            </div>
-
             <div class="amount-highlight">
-                <span>Total yang harus dibayar</span>
+                <span style="font-size: 12px; color: var(--text-gray);">Total Bayar:</span>
                 <strong id="totalAmountDisplay">Rp 0</strong>
             </div>
-            <button class="btn-buy" disabled style="background:#242a32;">
-                <span class="spinner"></span>MENUNGGU PEMBAYARAN...
+
+            <div class="detail-box">
+                <div class="detail-item"><span>ID Transaksi</span> <span id="detId">-</span></div>
+                <div class="detail-item"><span>Status</span> <span style="color:var(--primary)">MENUNGGU...</span></div>
+            </div>
+
+            <button class="btn-buy" disabled style="background:#1c2127; border: 1px solid var(--border);">
+                <span class="spinner"></span>CEK STATUS OTOMATIS
             </button>
         </div>
 
         <div id="step-success" style="display:none; text-align:center;">
-            <div style="font-size:50px; margin-bottom:10px;">✨</div>
-            <h3>Pembayaran Berhasil!</h3>
-            <p id="trxIdDisp" style="font-size:11px; color:#8e959e; margin:10px 0;"></p>
+            <div style="font-size:60px; margin-bottom:15px;">✅</div>
+            <h2 style="color: var(--success);">Berhasil Terbayar!</h2>
+            <p id="trxIdDisp" style="font-size:12px; color:var(--text-gray); margin:10px 0;"></p>
             <div class="data-box" id="finalData"></div>
-            <button class="btn-buy" style="background:#f5b041; color:black; margin-top:20px;" onclick="copyData()">SALIN DATA AKUN</button>
-            <button class="btn-buy" style="background:#242a32; margin-top:10px;" onclick="location.reload()">SELESAI</button>
+            <button class="btn-buy" style="background:var(--primary); color:black; margin-top:20px;" onclick="copyData()">SALIN AKUN</button>
+            <button class="btn-buy" style="background:var(--border); margin-top:10px;" onclick="location.reload()">KEMBALI KE TOKO</button>
         </div>
 
-        <button id="btnClose" onclick="closeModal()" style="background:none; border:none; color:#ef4444; width:100%; margin-top:25px; cursor:pointer; font-weight:800; font-size:12px;">BATALKAN</button>
+        <button id="btnClose" onclick="closeModal()" style="background:none; border:none; color:var(--danger); width:100%; margin-top:25px; cursor:pointer; font-weight:bold; font-size:12px;">BATALKAN TRANSAKSI</button>
     </div>
 </div>
 
 <div id="invoiceModal" class="modal">
-    <div class="modal-content">
-        <h2>Cek Invoice</h2>
-        <input type="text" id="inputTrxId" class="sheet-input" placeholder="TRX-123456" style="margin-top:20px;">
-        <button class="btn-buy" onclick="cariInvoice()">CARI PESANAN</button>
+    <div class="modal-content" style="bottom: auto; top: 50%; transform: translate(-50%, -50%); border-radius: 25px; width: 90%;">
+        <h2 style="text-align: center;">Riwayat Pesanan</h2>
+        <input type="text" id="inputTrxId" class="sheet-input" placeholder="Masukkan ID TRX (Contoh: TRX-123456)" style="margin-top:20px;">
+        <button class="btn-buy" onclick="cariInvoice()" style="background: var(--primary); color: black;">Cek Sekarang</button>
         <div id="invoiceResult" style="margin-top:15px;"></div>
-        <button onclick="closeInvoiceModal()" style="background:none; border:none; color:#8e959e; width:100%; margin-top:20px; cursor:pointer;">TUTUP</button>
+        <button onclick="closeInvoiceModal()" style="background:none; border:none; color:var(--text-gray); width:100%; margin-top:20px; cursor:pointer; font-weight: bold;">TUTUP</button>
     </div>
 </div>
 
 <script>
+    // --- KONFIGURASI ---
     const BASE_URL = "https://toko-tama-default-rtdb.asia-southeast1.firebasedatabase.app/";
     const CASHIFY_QRIS_ID = "8aa46a5a-ac64-44b4-b20d-2d1e1bbe1ec1";
 
-    const produkCache = {};
+    let produkCache = {};
     let selectedProdId, selectedAkunId, selectedDataAkun, hargaFix;
     let cashifyTransactionId = null;
     let pollingInterval = null;
 
+    // Toast Function
     function showToast(msg, type = "error") {
         const t = document.getElementById('errorToast');
         t.innerText = msg;
@@ -155,9 +246,11 @@
         setTimeout(() => t.classList.remove('show'), 3500);
     }
 
+    // Load Produk dari Firebase
     async function fetchProducts() {
         const container = document.getElementById('productList');
-        container.innerHTML = '<p style="text-align:center; color:#8e959e;">Memuat produk...</p>';
+        container.innerHTML = '<div style="text-align:center; padding:50px;"><span class="spinner"></span></div>';
+        
         try {
             const [resP, resS] = await Promise.all([
                 fetch(`${BASE_URL}produk.json`),
@@ -167,7 +260,7 @@
             const dataS = await resS.json() || {};
 
             if (!dataP) {
-                container.innerHTML = '<p style="text-align:center; color:#8e959e;">Belum ada produk.</p>';
+                container.innerHTML = '<p style="text-align:center; color:var(--text-gray);">Belum ada produk tersedia.</p>';
                 return;
             }
 
@@ -181,24 +274,22 @@
                 if (jmlStok > 0) { tT++; tS += jmlStok; }
 
                 produkCache[id] = {
-                    nama : dataP[id].nama,
-                    harga : dataP[id].harga,
-                    stok : dataS[id] || {}
+                    nama: dataP[id].nama,
+                    harga: dataP[id].harga,
+                    stok: dataS[id] || {}
                 };
 
-                const hargaAngka = String(dataP[id].harga).replace(/\D/g, '');
-                const hargaDisplay = "Rp " + parseInt(hargaAngka || 0).toLocaleString('id-ID');
-
+                const hrg = parseInt(String(dataP[id].harga).replace(/\D/g, ''));
+                
                 const card = document.createElement('div');
                 card.className = 'card';
                 card.innerHTML = `
-                    <div class="stock-tag ${jmlStok === 0 ? 'tag-red' : 'tag-green'}">${jmlStok === 0 ? 'Habis' : jmlStok + ' Ready'}</div>
+                    <div class="stock-tag ${jmlStok === 0 ? 'tag-red' : 'tag-green'}">${jmlStok === 0 ? 'Habis' : jmlStok + ' Tersedia'}</div>
                     <div class="card-title">${dataP[id].nama}</div>
-                    <div class="price">${hargaDisplay}</div>`;
+                    <div class="price">Rp ${hrg.toLocaleString('id-ID')}</div>
+                `;
 
-                card.addEventListener('click', () => {
-                    jmlStok === 0 ? showToast('Stok habis!') : openPayment(id);
-                });
+                card.onclick = () => jmlStok === 0 ? showToast('Maaf, stok habis!') : openPayment(id);
                 container.appendChild(card);
             });
 
@@ -207,172 +298,149 @@
             document.getElementById('totalTersedia').innerText = tT;
 
         } catch (e) {
-            container.innerHTML = '<p style="text-align:center; color:#ef4444;">Gagal memuat produk.</p>';
+            container.innerHTML = '<p style="text-align:center; color:var(--danger);">Koneksi database bermasalah.</p>';
         }
     }
 
     function openPayment(id) {
-        const produk = produkCache[id];
-        const listAkun = Object.keys(produk.stok);
-        if (listAkun.length === 0) return showToast('Stok habis!');
-
+        const p = produkCache[id];
+        const keys = Object.keys(p.stok);
+        
         selectedProdId = id;
-        selectedAkunId = listAkun[0];
-        selectedDataAkun = produk.stok[selectedAkunId];
-        hargaFix = parseInt(String(produk.harga).replace(/\D/g, ''));
+        selectedAkunId = keys[0];
+        selectedDataAkun = p.stok[selectedAkunId];
+        hargaFix = parseInt(String(p.harga).replace(/\D/g, ''));
 
+        document.getElementById('payTitle').innerText = p.nama;
+        document.getElementById('payPrice').innerText = "Rp " + hargaFix.toLocaleString('id-ID');
+        
+        // Reset View
         document.getElementById('step-input').style.display = 'block';
         document.getElementById('step-qris').style.display = 'none';
         document.getElementById('step-success').style.display = 'none';
         document.getElementById('btnClose').style.display = 'block';
-        document.getElementById('buyerName').value = '';
-        document.getElementById('buyerEmail').value = '';
-        document.getElementById('qrisCanvas').innerHTML = '';
-        document.getElementById('btnLanjutkan').disabled = false;
-        document.getElementById('btnLanjutkan').innerHTML = 'Lanjutkan Pembayaran';
-
-        document.getElementById('payTitle').innerText = produk.nama;
-        document.getElementById('payPrice').innerText = "Rp " + hargaFix.toLocaleString('id-ID');
         document.getElementById('paymentModal').style.display = 'block';
     }
 
     async function tampilkanQRIS() {
         const nama = document.getElementById('buyerName').value.trim();
         const email = document.getElementById('buyerEmail').value.trim();
-        if (!nama || !email) return showToast("Isi Nama & Email!");
+        
+        if (nama.length < 3) return showToast("Nama terlalu pendek!");
+        if (!email.includes('@')) return showToast("Email tidak valid!");
 
         const btn = document.getElementById('btnLanjutkan');
         btn.disabled = true;
-        btn.innerHTML = '<span class="spinner"></span>Membuat QRIS...';
+        btn.innerHTML = '<span class="spinner"></span>Menghubungkan ke Gateway...';
 
         try {
             const res = await fetch('/api/generate', {
-                method : 'POST',
+                method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body : JSON.stringify({
-                    id : CASHIFY_QRIS_ID,
-                    amount : hargaFix,
-                    useUniqueCode : true,
-                    packageIds : ["id.dana"],
+                body: JSON.stringify({
+                    id: CASHIFY_QRIS_ID,
+                    amount: hargaFix,
+                    useUniqueCode: true,
                     expiredInMinutes: 15
                 })
             });
 
-            const json = await res.json();
-            const { qr_string, transactionId, totalAmount, uniqueNominal } = json.data;
+            const result = await res.json();
+            if(!result.data) throw new Error();
+
+            const { qr_string, transactionId, totalAmount } = result.data;
             cashifyTransactionId = transactionId;
 
-            // HITUNG FEE (Sesuaikan dengan file keuntungan.html)
-            const feeAdmin = Math.round((hargaFix * 0.05) + 1000); 
-
-            document.getElementById('step-input').style.display = 'none';
-            document.getElementById('step-qris').style.display = 'block';
-
+            // Render QR
             document.getElementById('qrisCanvas').innerHTML = '';
             new QRCode(document.getElementById('qrisCanvas'), {
-                text : qr_string,
-                width : 220,
-                height : 220,
-                colorDark : "#000000",
-                colorLight : "#ffffff"
+                text: qr_string, width: 200, height: 200
             });
 
-            // UPDATE DETAIL BOX
             document.getElementById('detId').innerText = transactionId;
-            document.getElementById('detHarga').innerText = "Rp " + hargaFix.toLocaleString('id-ID');
-            document.getElementById('detFee').innerText = "Rp " + feeAdmin.toLocaleString('id-ID');
-            document.getElementById('detUnik').innerText = "Rp " + uniqueNominal;
-            document.getElementById('detWaktu').innerText = new Date().toLocaleString('id-ID');
-
-            const totalFinal = hargaFix + feeAdmin + uniqueNominal;
-            document.getElementById('totalAmountDisplay').innerText = "Rp " + totalFinal.toLocaleString('id-ID');
-
+            document.getElementById('totalAmountDisplay').innerText = "Rp " + totalAmount.toLocaleString('id-ID');
+            
+            document.getElementById('step-input').style.display = 'none';
+            document.getElementById('step-qris').style.display = 'block';
+            
             mulaiPolling();
 
         } catch (e) {
-            showToast("Gagal membuat QRIS.");
+            showToast("Server sibuk. Coba lagi nanti.");
             btn.disabled = false;
+            btn.innerText = "Coba Lagi";
         }
     }
 
     function mulaiPolling() {
         if (pollingInterval) clearInterval(pollingInterval);
         pollingInterval = setInterval(async () => {
-            if (!cashifyTransactionId) return;
             try {
                 const res = await fetch('/api/check-status', {
-                    method : 'POST',
+                    method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body : JSON.stringify({ transactionId: cashifyTransactionId })
+                    body: JSON.stringify({ transactionId: cashifyTransactionId })
                 });
                 const json = await res.json();
-                const status = json.data?.status?.toLowerCase();
+                const stat = json.data?.status?.toLowerCase();
 
-                if (status === 'paid' || status === 'success') {
+                if (stat === 'paid' || stat === 'success') {
                     clearInterval(pollingInterval);
                     prosesLunas();
                 }
             } catch (e) {}
-        }, 5000);
+        }, 4000);
     }
 
     async function prosesLunas() {
-        const trxId = "TRX-" + Math.floor(100000 + Math.random() * 900000);
+        const trxId = "TRX-" + Math.floor(100000 + Math.random() * 899999);
         try {
+            // Hapus stok & Catat Transaksi
             await fetch(`${BASE_URL}stok_akun/${selectedProdId}/${selectedAkunId}.json`, { method: 'DELETE' });
             await fetch(`${BASE_URL}transaksi/${trxId}.json`, {
-                method : 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body : JSON.stringify({
-                    produk : document.getElementById('payTitle').innerText,
-                    harga : hargaFix, // DISIMPAN BIAR NYAMBUNG KE WEB CUAN
-                    data : selectedDataAkun,
-                    nama : document.getElementById('buyerName').value,
-                    email : document.getElementById('buyerEmail').value,
-                    cashifyTrxId: cashifyTransactionId,
-                    tanggal : new Date().toLocaleString('id-ID')
+                method: 'PUT',
+                body: JSON.stringify({
+                    produk: document.getElementById('payTitle').innerText,
+                    data: selectedDataAkun,
+                    pembeli: document.getElementById('buyerName').value,
+                    email: document.getElementById('buyerEmail').value,
+                    tanggal: new Date().toLocaleString('id-ID')
                 })
             });
 
             document.getElementById('step-qris').style.display = 'none';
             document.getElementById('step-success').style.display = 'block';
             document.getElementById('btnClose').style.display = 'none';
-            document.getElementById('trxIdDisp').innerText = "ID Transaksi: " + trxId;
+            document.getElementById('trxIdDisp').innerText = "Simpan ID ini: " + trxId;
             document.getElementById('finalData').innerText = selectedDataAkun;
-            showToast("Pembayaran berhasil! 🎉", "success");
+            showToast("Pembayaran Diterima!", "success");
 
         } catch (e) {
-            showToast("Gagal simpan transaksi.");
+            showToast("Gagal mengambil data akun. Hubungi admin.");
         }
     }
 
     async function closeModal() {
-        if (pollingInterval) clearInterval(pollingInterval);
-        if (cashifyTransactionId) {
-            try {
-                await fetch('/api/cancel-status', {
-                    method : 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body : JSON.stringify({ transactionId: cashifyTransactionId })
-                });
-            } catch (e) {}
+        if (confirm("Batalkan pesanan ini?")) {
+            if (pollingInterval) clearInterval(pollingInterval);
+            document.getElementById('paymentModal').style.display = 'none';
         }
-        document.getElementById('paymentModal').style.display = 'none';
     }
 
     async function cariInvoice() {
         const id = document.getElementById('inputTrxId').value.trim().toUpperCase();
         const box = document.getElementById('invoiceResult');
-        if (!id) return showToast("Masukkan ID!");
-        box.innerHTML = 'Mencari...';
+        if (!id) return;
+        
+        box.innerHTML = '<span class="spinner"></span>';
         try {
             const res = await fetch(`${BASE_URL}transaksi/${id}.json`);
             const data = await res.json();
             if (!data) {
-                box.innerHTML = '❌ Tidak ditemukan.';
-                return;
+                box.innerHTML = '<p style="color:var(--danger); text-align:center;">Data tidak ditemukan.</p>';
+            } else {
+                box.innerHTML = `<div class="data-box" style="font-size:12px;">PRODUK: ${data.produk}<br><br>DATA AKUN:<br>${data.data}</div>`;
             }
-            box.innerHTML = `<div class="data-box">Produk: ${data.produk}<br>Data: ${data.data}</div>`;
         } catch (e) { box.innerHTML = 'Error.'; }
     }
 
@@ -380,9 +448,10 @@
     function closeInvoiceModal() { document.getElementById('invoiceModal').style.display = 'none'; }
     function copyData() {
         navigator.clipboard.writeText(document.getElementById('finalData').innerText)
-            .then(() => showToast("Disalin!", "success"));
+            .then(() => showToast("Berhasil disalin!", "success"));
     }
 
+    // Start
     fetchProducts();
 </script>
 </body>
