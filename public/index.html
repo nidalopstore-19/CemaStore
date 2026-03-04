@@ -271,7 +271,38 @@
         } catch (e) { console.error(e); }
     }
 
-    function closeModal() { document.getElementById('paymentModal').style.display = 'none'; clearInterval(pollingInterval); clearInterval(timerInterval); }
+    function closeModal() {
+    // 1. Tutup tampilan modal secara visual
+    document.getElementById('paymentModal').style.display = 'none';
+    
+    // 2. Hentikan pengecekan status otomatis (Polling)
+    if (pollingInterval) {
+        clearInterval(pollingInterval);
+        pollingInterval = null;
+    }
+    
+    // 3. Hentikan jam mundur (Timer)
+    if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+    }
+
+    // 4. (Opsional) Kirim sinyal batal ke server Cashify agar QR mati
+    if (cashifyTransactionId) {
+        fetch('/api/cancel-status', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ transactionId: cashifyTransactionId })
+        }).catch(e => console.log("Gagal cancel di server, tapi modal tetap tutup."));
+        
+        cashifyTransactionId = null;
+    }
+    
+    // 5. Reset tampilan modal ke awal agar saat dibuka lagi tidak nyangkut di QRIS
+    document.getElementById('step-input').style.display = 'block';
+    document.getElementById('step-qris').style.display = 'none';
+    document.getElementById('step-success').style.display = 'none';
+}
     function openInvoiceModal() { document.getElementById('invoiceModal').style.display = 'block'; }
     function closeInvoiceModal() { document.getElementById('invoiceModal').style.display = 'none'; }
     function copyData() { navigator.clipboard.writeText(document.getElementById('finalData').innerText).then(() => showToast("Tersalin!", "success")); }
