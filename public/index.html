@@ -50,20 +50,16 @@
         .btn-buy { background: #4f46e5; color: white; border: none; padding: 18px; width: 100%; border-radius: 18px; font-weight: bold; cursor: pointer; }
 
         .qris-box { background: white; border-radius: 20px; padding: 15px; margin: 15px auto; width: fit-content; min-height: 200px; display: flex; align-items: center; justify-content: center; }
+        .amount-highlight { background: var(--bg-dark); border: 2px dashed var(--primary); border-radius: 12px; padding: 12px 20px; text-align: center; margin: 12px 0; }
+        .amount-highlight strong { color: var(--primary); font-size: 26px; display: block; margin-top: 5px; }
         
-        /* BOX RINCIAN BIAYA & JAM */
-        .payment-info { background: var(--bg-dark); border: 1px solid var(--border); border-radius: 15px; padding: 15px; margin: 15px 0; font-size: 13px; text-align: left; }
-        .info-row { display: flex; justify-content: space-between; margin-bottom: 8px; color: var(--text-gray); }
-        .info-row b { color: #fff; }
-        .total-row { border-top: 1px dashed var(--border); padding-top: 10px; margin-top: 10px; font-size: 16px; }
-        .total-row strong { color: var(--primary); font-size: 22px; }
-
-        .timer-box { color: var(--danger); font-weight: 800; font-size: 14px; margin-top: 10px; background: rgba(239, 68, 68, 0.1); padding: 8px; border-radius: 10px; }
+        .unique-note { font-size: 12px; color: var(--text-gray); text-align: center; margin-bottom: 15px; line-height: 1.8; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 10px; }
+        .unique-note b { color: var(--primary); }
 
         .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.8s linear infinite; vertical-align: middle; margin-right: 6px; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        .data-box { background: #000; border: 1px solid var(--primary); padding: 18px; border-radius: 16px; margin-top: 20px; color: var(--primary); font-family: monospace; word-break: break-all; }
+        .data-box { background: #000; border: 2px dashed var(--primary); padding: 18px; border-radius: 16px; margin-top: 20px; color: var(--primary); font-family: monospace; word-break: break-all; }
     </style>
 </head>
 <body>
@@ -88,28 +84,22 @@
     <div class="modal-content">
         <div id="step-input">
             <h2 id="payTitle">Produk</h2>
-            <br>
-            <input type="text" id="buyerName" class="sheet-input" placeholder="Nama Lengkap">
-            <input type="email" id="buyerEmail" class="sheet-input" placeholder="Email Aktif">
+            <p style="font-size:13px; color:var(--text-gray); margin-bottom:25px;">Masukkan data untuk menerima akun</p>
+            <input type="text" id="buyerName" class="sheet-input" placeholder="Nama kamu">
+            <input type="email" id="buyerEmail" class="sheet-input" placeholder="email@aktif.com">
             <div id="payPrice" style="font-size:24px; font-weight:900; margin-bottom:25px; color:var(--primary); text-align:center;"></div>
             <button class="btn-buy" id="btnLanjutkan" onclick="tampilkanQRIS()">Lanjutkan Pembayaran</button>
         </div>
 
         <div id="step-qris" style="display:none; text-align:center;">
-            <h3>Scan QRIS untuk Bayar</h3>
-            <div class="timer-box">Selesaikan dalam: <span id="countdown">15:00</span></div>
-            
+            <h3>Selesaikan Pembayaran</h3>
             <div class="qris-box" id="qrisCanvas"><span class="spinner"></span></div>
-            
-            <div class="payment-info">
-                <div class="info-row"><span>Harga Produk</span> <b id="infoHarga">Rp 0</b></div>
-                <div class="info-row"><span>Biaya Admin</span> <b id="infoFee">Rp 1.000</b></div>
-                <div class="info-row"><span>Kode Unik</span> <b id="infoUnik">Rp 10</b></div>
-                <div class="info-row total-row"><span>Total Bayar</span> <strong id="totalAmountDisplay">Rp 0</strong></div>
+            <div class="amount-highlight">
+                <span style="font-size:11px; color:var(--text-gray)">Total yang harus dibayar:</span>
+                <strong id="totalAmountDisplay">Rp 0</strong>
             </div>
-
-            <p style="font-size: 11px; color: var(--text-gray); margin-bottom: 15px;">Transfer harus <b>PERSIS</b> sampai 3 angka terakhir agar otomatis.</p>
-
+            <div class="unique-note" id="paymentDetails">
+                </div>
             <button class="btn-buy" disabled style="background:#242a32;">
                 <span class="spinner"></span>MENUNGGU PEMBAYARAN...
             </button>
@@ -118,22 +108,23 @@
         <div id="step-success" style="display:none; text-align:center;">
             <div style="font-size:50px; margin-bottom:10px;">✨</div>
             <h3>Berhasil Terbayar!</h3>
+            <p id="trxIdDisp" style="font-size:11px; color:var(--text-gray); margin:10px 0;"></p>
             <div class="data-box" id="finalData"></div>
             <button class="btn-buy" style="background:var(--primary); color:black; margin-top:20px;" onclick="copyData()">SALIN DATA AKUN</button>
             <button class="btn-buy" style="background:#242a32; margin-top:10px;" onclick="location.reload()">SELESAI</button>
         </div>
 
-        <button id="btnClose" onclick="closeModal()" style="background:none; border:none; color:var(--danger); width:100%; margin-top:25px; cursor:pointer; font-weight:800;">BATALKAN</button>
+        <button id="btnClose" onclick="closeModal()" style="background:none; border:none; color:var(--danger); width:100%; margin-top:25px; cursor:pointer; font-weight:800; font-size:12px;">BATALKAN</button>
     </div>
 </div>
 
 <div id="invoiceModal" class="modal">
     <div class="modal-content" style="bottom:auto; top:50%; transform:translate(-50%, -50%); border-radius:25px; width:90%">
-        <h2>Cek Invoice</h2>
+        <h2 style="text-align:center">Cek Invoice</h2>
         <input type="text" id="inputTrxId" class="sheet-input" placeholder="TRX-123456" style="margin-top:20px;">
         <button class="btn-buy" onclick="cariInvoice()">CARI PESANAN</button>
         <div id="invoiceResult" style="margin-top:15px;"></div>
-        <button onclick="closeInvoiceModal()" style="background:none; border:none; color:var(--text-gray); width:100%; margin-top:15px;">TUTUP</button>
+        <button onclick="closeInvoiceModal()" style="background:none; border:none; color:var(--text-gray); width:100%; margin-top:20px; cursor:pointer;">TUTUP</button>
     </div>
 </div>
 
@@ -142,7 +133,9 @@
     const CASHIFY_QRIS_ID = "8aa46a5a-ac64-44b4-b20d-2d1e1bbe1ec1";
 
     const produkCache = {};
-    let selectedProdId, selectedAkunId, selectedDataAkun, hargaFix, cashifyTransactionId, pollingInterval, timerInterval;
+    let selectedProdId, selectedAkunId, selectedDataAkun, hargaFix;
+    let cashifyTransactionId = null;
+    let pollingInterval = null;
 
     function showToast(msg, type = "error") {
         const t = document.getElementById('errorToast');
@@ -152,11 +145,12 @@
     }
 
     async function fetchProducts() {
+        const container = document.getElementById('productList');
         try {
             const [resP, resS] = await Promise.all([fetch(`${BASE_URL}produk.json`), fetch(`${BASE_URL}stok_akun.json`)]);
             const dataP = await resP.json();
             const dataS = await resS.json() || {};
-            const container = document.getElementById('productList');
+            if (!dataP) return;
             container.innerHTML = '';
             Object.keys(dataP).forEach(id => {
                 const listAkun = dataS[id] ? Object.keys(dataS[id]) : [];
@@ -164,7 +158,10 @@
                 produkCache[id] = { nama: dataP[id].nama, harga: dataP[id].harga, stok: dataS[id] || {} };
                 const card = document.createElement('div');
                 card.className = 'card';
-                card.innerHTML = `<div class="stock-tag ${jmlStok === 0 ? 'tag-red' : 'tag-green'}">${jmlStok === 0 ? 'Habis' : jmlStok + ' Ready'}</div><div class="card-title">${dataP[id].nama}</div><div class="price">Rp ${parseInt(dataP[id].harga).toLocaleString('id-ID')}</div>`;
+                card.innerHTML = `
+                    <div class="stock-tag ${jmlStok === 0 ? 'tag-red' : 'tag-green'}">${jmlStok === 0 ? 'Habis' : jmlStok + ' Ready'}</div>
+                    <div class="card-title">${dataP[id].nama}</div>
+                    <div class="price">Rp ${parseInt(dataP[id].harga).toLocaleString('id-ID')}</div>`;
                 card.onclick = () => jmlStok === 0 ? showToast('Stok habis!') : openPayment(id);
                 container.appendChild(card);
             });
@@ -194,14 +191,20 @@
         btn.innerHTML = '<span class="spinner"></span>Membuat QRIS...';
 
         try {
-            const feeAdmin = 1000;
-            const kodeUnik = 10;
+            // --- HITUNG BIAYA ---
+            const feeAdmin = 1000; 
+            const kodeUnik = 10;   
             const totalBayarRequest = hargaFix + feeAdmin + kodeUnik;
 
             const res = await fetch('/api/generate', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id: CASHIFY_QRIS_ID, amount: totalBayarRequest, useUniqueCode: false, expiredInMinutes: 15 })
+                body: JSON.stringify({
+                    id: CASHIFY_QRIS_ID,
+                    amount: totalBayarRequest,
+                    useUniqueCode: false,
+                    expiredInMinutes: 15
+                })
             });
 
             const json = await res.json();
@@ -214,30 +217,19 @@
             document.getElementById('qrisCanvas').innerHTML = '';
             new QRCode(document.getElementById('qrisCanvas'), { text: json.data.qr_string, width: 200, height: 200 });
 
-            // ISI DATA RINCIAN
-            document.getElementById('infoHarga').innerText = "Rp " + hargaFix.toLocaleString('id-ID');
             document.getElementById('totalAmountDisplay').innerText = "Rp " + totalBayarRequest.toLocaleString('id-ID');
-            
-            startTimer(15 * 60);
+            document.getElementById('paymentDetails').innerHTML = `
+                Biaya Admin: <b>Rp ${feeAdmin.toLocaleString('id-ID')}</b><br>
+                Kode Unik: <b>Rp ${kodeUnik}</b> (Wajib pas!)<br>
+                Waktu Bayar: <b>15 Menit</b>
+            `;
+
             mulaiPolling();
         } catch (e) {
             showToast("Gagal: " + e.message);
             btn.disabled = false;
             btn.innerText = "Coba Lagi";
         }
-    }
-
-    function startTimer(duration) {
-        let timer = duration, minutes, seconds;
-        if (timerInterval) clearInterval(timerInterval);
-        timerInterval = setInterval(() => {
-            minutes = parseInt(timer / 60, 10);
-            seconds = parseInt(timer % 60, 10);
-            minutes = minutes < 10 ? "0" + minutes : minutes;
-            seconds = seconds < 10 ? "0" + seconds : seconds;
-            document.getElementById('countdown').textContent = minutes + ":" + seconds;
-            if (--timer < 0) { clearInterval(timerInterval); closeModal(); alert("Waktu Pembayaran Habis!"); }
-        }, 1000);
     }
 
     function mulaiPolling() {
@@ -252,7 +244,6 @@
                 const json = await res.json();
                 if (json.data?.status?.toLowerCase() === 'paid') {
                     clearInterval(pollingInterval);
-                    clearInterval(timerInterval);
                     prosesLunas();
                 }
             } catch (e) {}
@@ -262,47 +253,19 @@
     async function prosesLunas() {
         const trxId = "TRX-" + Math.floor(100000 + Math.random() * 900000);
         try {
-            await fetch(`${BASE_URL}transaksi/${trxId}.json`, { method: 'PUT', body: JSON.stringify({ produk: produkCache[selectedProdId].nama, data: selectedDataAkun, pembeli: document.getElementById('buyerName').value, email: document.getElementById('buyerEmail').value, tanggal: new Date().toLocaleString() }) });
+            await fetch(`${BASE_URL}transaksi/${trxId}.json`, {
+                method: 'PUT',
+                body: JSON.stringify({ produk: produkCache[selectedProdId].nama, data: selectedDataAkun, pembeli: document.getElementById('buyerName').value, email: document.getElementById('buyerEmail').value, tanggal: new Date().toLocaleString() })
+            });
             await fetch(`${BASE_URL}stok_akun/${selectedProdId}/${selectedAkunId}.json`, { method: 'DELETE' });
             document.getElementById('step-qris').style.display = 'none';
             document.getElementById('step-success').style.display = 'block';
             document.getElementById('finalData').innerText = selectedDataAkun;
-            showToast("Pembayaran Berhasil!", "success");
-        } catch (e) { console.error(e); }
+            document.getElementById('trxIdDisp').innerText = "ID Transaksi: " + trxId;
+        } catch (e) { showToast("Gagal proses akun!"); }
     }
 
-    function closeModal() {
-    // 1. Tutup tampilan modal secara visual
-    document.getElementById('paymentModal').style.display = 'none';
-    
-    // 2. Hentikan pengecekan status otomatis (Polling)
-    if (pollingInterval) {
-        clearInterval(pollingInterval);
-        pollingInterval = null;
-    }
-    
-    // 3. Hentikan jam mundur (Timer)
-    if (timerInterval) {
-        clearInterval(timerInterval);
-        timerInterval = null;
-    }
-
-    // 4. (Opsional) Kirim sinyal batal ke server Cashify agar QR mati
-    if (cashifyTransactionId) {
-        fetch('/api/cancel-status', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ transactionId: cashifyTransactionId })
-        }).catch(e => console.log("Gagal cancel di server, tapi modal tetap tutup."));
-        
-        cashifyTransactionId = null;
-    }
-    
-    // 5. Reset tampilan modal ke awal agar saat dibuka lagi tidak nyangkut di QRIS
-    document.getElementById('step-input').style.display = 'block';
-    document.getElementById('step-qris').style.display = 'none';
-    document.getElementById('step-success').style.display = 'none';
-}
+    function closeModal() { document.getElementById('paymentModal').style.display = 'none'; clearInterval(pollingInterval); }
     function openInvoiceModal() { document.getElementById('invoiceModal').style.display = 'block'; }
     function closeInvoiceModal() { document.getElementById('invoiceModal').style.display = 'none'; }
     function copyData() { navigator.clipboard.writeText(document.getElementById('finalData').innerText).then(() => showToast("Tersalin!", "success")); }
