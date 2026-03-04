@@ -120,6 +120,7 @@
         .qris-box { 
             background: white; border-radius: 20px; padding: 15px; 
             margin: 20px auto; width: fit-content; border: 4px solid var(--primary);
+            min-height: 230px; display: flex; align-items: center; justify-content: center;
         }
         .detail-box { 
             background: var(--bg-dark); padding: 15px; border-radius: 15px; 
@@ -145,6 +146,7 @@
             background: #000; border: 1px solid var(--primary); padding: 20px; 
             border-radius: 15px; margin-top: 15px; color: var(--primary); 
             font-family: 'Courier New', monospace; font-weight: bold;
+            word-break: break-all;
         }
     </style>
 </head>
@@ -187,7 +189,8 @@
 
         <div id="step-qris" style="display:none; text-align:center;">
             <h3>Selesaikan Pembayaran</h3>
-            <div class="qris-box"><div id="qrisCanvas"></div></div>
+            <div class="qris-box" id="qrisCanvas">
+                </div>
             
             <div class="amount-highlight">
                 <span style="font-size: 12px; color: var(--text-gray);">Total Bayar:</span>
@@ -196,7 +199,7 @@
 
             <div class="detail-box">
                 <div class="detail-item"><span>ID Transaksi</span> <span id="detId">-</span></div>
-                <div class="detail-item"><span>Status</span> <span style="color:var(--primary)">MENUNGGU...</span></div>
+                <div class="detail-item"><span>Status</span> <span id="paymentStatus" style="color:var(--primary)">MENUNGGU...</span></div>
             </div>
 
             <button class="btn-buy" disabled style="background:#1c2127; border: 1px solid var(--border);">
@@ -229,6 +232,8 @@
 
 <script>
     // --- KONFIGURASI ---
+    // GANTI VERCEL_URL DENGAN URL ASLI VERCEL KAMU!
+    const VERCEL_URL = "https://proyek-kamu.vercel.app"; 
     const BASE_URL = "https://toko-tama-default-rtdb.asia-southeast1.firebasedatabase.app/";
     const CASHIFY_QRIS_ID = "8aa46a5a-ac64-44b4-b20d-2d1e1bbe1ec1";
 
@@ -237,7 +242,6 @@
     let cashifyTransactionId = null;
     let pollingInterval = null;
 
-    // Toast Function
     function showToast(msg, type = "error") {
         const t = document.getElementById('errorToast');
         t.innerText = msg;
@@ -246,7 +250,6 @@
         setTimeout(() => t.classList.remove('show'), 3500);
     }
 
-    // Load Produk dari Firebase
     async function fetchProducts() {
         const container = document.getElementById('productList');
         container.innerHTML = '<div style="text-align:center; padding:50px;"><span class="spinner"></span></div>';
@@ -314,7 +317,6 @@
         document.getElementById('payTitle').innerText = p.nama;
         document.getElementById('payPrice').innerText = "Rp " + hargaFix.toLocaleString('id-ID');
         
-        // Reset View
         document.getElementById('step-input').style.display = 'block';
         document.getElementById('step-qris').style.display = 'none';
         document.getElementById('step-success').style.display = 'none';
@@ -331,10 +333,10 @@
 
         const btn = document.getElementById('btnLanjutkan');
         btn.disabled = true;
-        btn.innerHTML = '<span class="spinner"></span>Menghubungkan ke Gateway...';
+        btn.innerHTML = '<span class="spinner"></span>Membangun QRIS...';
 
         try {
-            const res = await fetch('/api/generate', {
+            const res = await fetch(`${VERCEL_URL}/api/generate`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -346,15 +348,23 @@
             });
 
             const result = await res.json();
-            if(!result.data) throw new Error();
+            if(!res.ok || !result.data) {
+                alert("Kesalahan Server: " + (result.error || "Gagal membuat QRIS"));
+                throw new Error();
+            }
 
             const { qr_string, transactionId, totalAmount } = result.data;
             cashifyTransactionId = transactionId;
 
-            // Render QR
+            // Render QR Image
             document.getElementById('qrisCanvas').innerHTML = '';
             new QRCode(document.getElementById('qrisCanvas'), {
-                text: qr_string, width: 200, height: 200
+                text: qr_string,
+                width: 200,
+                height: 200,
+                colorDark : "#000000",
+                colorLight : "#ffffff",
+                correctLevel : QRCode.CorrectLevel.H
             });
 
             document.getElementById('detId').innerText = transactionId;
@@ -366,7 +376,7 @@
             mulaiPolling();
 
         } catch (e) {
-            showToast("Server sibuk. Coba lagi nanti.");
+            showToast("Gagal memuat QRIS. Silahkan coba lagi.");
             btn.disabled = false;
             btn.innerText = "Coba Lagi";
         }
@@ -376,7 +386,7 @@
         if (pollingInterval) clearInterval(pollingInterval);
         pollingInterval = setInterval(async () => {
             try {
-                const res = await fetch('/api/check-status', {
+                const res = await fetch(`${VERCEL_URL}/api/check-status`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ transactionId: cashifyTransactionId })
@@ -386,17 +396,20 @@
 
                 if (stat === 'paid' || stat === 'success') {
                     clearInterval(pollingInterval);
+                    document.getElementById('paymentStatus').innerText = "LUNAS";
+                    document.getElementById('paymentStatus').style.color = "var(--success)";
                     prosesLunas();
                 }
-            } catch (e) {}
+            } catch (e) {
+                console.error("Polling error");
+            }
         }, 4000);
     }
 
     async function prosesLunas() {
         const trxId = "TRX-" + Math.floor(100000 + Math.random() * 899999);
         try {
-            // Hapus stok & Catat Transaksi
-            await fetch(`${BASE_URL}stok_akun/${selectedProdId}/${selectedAkunId}.json`, { method: 'DELETE' });
+            // Catat Transaksi di Firebase
             await fetch(`${BASE_URL}transaksi/${trxId}.json`, {
                 method: 'PUT',
                 body: JSON.stringify({
@@ -408,21 +421,34 @@
                 })
             });
 
+            // Hapus stok akun
+            await fetch(`${BASE_URL}stok_akun/${selectedProdId}/${selectedAkunId}.json`, { method: 'DELETE' });
+
             document.getElementById('step-qris').style.display = 'none';
             document.getElementById('step-success').style.display = 'block';
             document.getElementById('btnClose').style.display = 'none';
-            document.getElementById('trxIdDisp').innerText = "Simpan ID ini: " + trxId;
+            document.getElementById('trxIdDisp').innerText = "ID Transaksi: " + trxId;
             document.getElementById('finalData').innerText = selectedDataAkun;
-            showToast("Pembayaran Diterima!", "success");
+            showToast("Pembayaran Berhasil!", "success");
 
         } catch (e) {
-            showToast("Gagal mengambil data akun. Hubungi admin.");
+            showToast("Error sistem. Hubungi Admin.");
         }
     }
 
     async function closeModal() {
         if (confirm("Batalkan pesanan ini?")) {
             if (pollingInterval) clearInterval(pollingInterval);
+            
+            // Panggil API Cancel jika ada
+            try {
+                fetch(`${VERCEL_URL}/api/cancel-status`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ transactionId: cashifyTransactionId })
+                });
+            } catch(e) {}
+
             document.getElementById('paymentModal').style.display = 'none';
         }
     }
@@ -432,7 +458,7 @@
         const box = document.getElementById('invoiceResult');
         if (!id) return;
         
-        box.innerHTML = '<span class="spinner"></span>';
+        box.innerHTML = '<span class="spinner"></span> Mencari...';
         try {
             const res = await fetch(`${BASE_URL}transaksi/${id}.json`);
             const data = await res.json();
@@ -441,17 +467,22 @@
             } else {
                 box.innerHTML = `<div class="data-box" style="font-size:12px;">PRODUK: ${data.produk}<br><br>DATA AKUN:<br>${data.data}</div>`;
             }
-        } catch (e) { box.innerHTML = 'Error.'; }
+        } catch (e) { box.innerHTML = 'Gagal memuat data.'; }
     }
 
     function openInvoiceModal() { document.getElementById('invoiceModal').style.display = 'block'; }
     function closeInvoiceModal() { document.getElementById('invoiceModal').style.display = 'none'; }
+    
     function copyData() {
-        navigator.clipboard.writeText(document.getElementById('finalData').innerText)
-            .then(() => showToast("Berhasil disalin!", "success"));
+        const text = document.getElementById('finalData').innerText;
+        navigator.clipboard.writeText(text).then(() => {
+            showToast("Berhasil disalin ke clipboard!", "success");
+        }).catch(() => {
+            showToast("Gagal menyalin.");
+        });
     }
 
-    // Start
+    // Jalankan awal
     fetchProducts();
 </script>
 </body>
