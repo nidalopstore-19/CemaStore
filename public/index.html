@@ -16,473 +16,213 @@
             --danger: #ef4444;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', 'Segoe UI', sans-serif; }
-        
-        body { 
-            background-color: var(--bg-dark); 
-            color: #ffffff; 
-            padding: 20px; 
-            max-width: 500px; 
-            margin: auto; 
-            min-height: 100vh;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: var(--bg-dark); color: #ffffff; padding: 20px; max-width: 500px; margin: auto; }
 
-        /* Toast Notification */
-        .toast { 
-            position: fixed; top: -100px; left: 50%; transform: translateX(-50%); 
-            background: var(--danger); color: white; padding: 14px 25px; 
-            border-radius: 12px; font-size: 13px; font-weight: 600; 
-            z-index: 10001; transition: 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55); 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
-        }
+        .toast { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); background: var(--danger); color: white; padding: 12px 25px; border-radius: 12px; font-size: 13px; font-weight: bold; z-index: 10000; transition: 0.5s; }
         .toast.show { top: 30px; }
         .toast.success { background: var(--success); }
 
-        /* Header Section */
         .header { text-align: center; margin: 30px 0; }
-        .profile-img { 
-            width: 90px; height: 90px; border-radius: 50%; 
-            border: 3px solid var(--primary); margin-bottom: 15px;
-            object-fit: cover; box-shadow: 0 0 20px rgba(245, 176, 65, 0.2);
-        }
-        .store-name { font-size: 1.6rem; font-weight: 800; letter-spacing: -0.5px; }
+        .profile-img { width: 80px; height: 80px; border-radius: 50%; border: 2px solid var(--primary); margin-bottom: 10px; }
 
-        /* Stats Card */
-        .stats-container { 
-            display: grid; grid-template-columns: repeat(3, 1fr);
-            background: var(--card-bg); padding: 20px; 
-            border-radius: 20px; margin-bottom: 25px; border: 1px solid var(--border); 
-        }
-        .stat-box { text-align: center; border-right: 1px solid var(--border); }
-        .stat-box:last-child { border-right: none; }
-        .stat-val { font-size: 18px; font-weight: 800; color: var(--primary); }
-        .stat-label { font-size: 10px; color: var(--text-gray); text-transform: uppercase; margin-top: 4px; }
+        .stats-container { display: grid; grid-template-columns: repeat(3, 1fr); background: var(--card-bg); padding: 15px; border-radius: 15px; margin-bottom: 20px; border: 1px solid var(--border); }
+        .stat-box { text-align: center; }
+        .stat-val { font-size: 18px; font-weight: bold; color: var(--primary); }
+        .stat-label { font-size: 10px; color: var(--text-gray); text-transform: uppercase; }
 
-        .btn-cek-nav { 
-            background: linear-gradient(145deg, #1c2127, #161a1e);
-            border: 1px solid var(--border); color: var(--primary); 
-            padding: 16px; border-radius: 18px; width: 100%; 
-            margin-bottom: 25px; font-size: 13px; font-weight: bold; 
-            cursor: pointer; transition: 0.3s;
-        }
-        .btn-cek-nav:hover { background: var(--border); border-color: var(--primary); }
+        .btn-cek-nav { background: var(--card-bg); border: 1px solid var(--border); color: var(--primary); padding: 14px; border-radius: 15px; width: 100%; margin-bottom: 20px; font-weight: bold; cursor: pointer; }
 
-        /* Product Cards */
-        #productList { display: flex; flex-direction: column; gap: 12px; }
-        .card { 
-            background: var(--card-bg); border: 1px solid var(--border); 
-            border-radius: 22px; padding: 20px; position: relative; 
-            transition: all 0.2s ease; cursor: pointer;
-        }
-        .card:hover { border-color: var(--primary); transform: translateY(-2px); }
-        .card-title { font-size: 15px; font-weight: 600; margin-bottom: 6px; color: #eee; }
-        .price { color: var(--primary); font-size: 20px; font-weight: 800; }
-        
-        .stock-tag { 
-            position: absolute; top: 20px; right: 20px; 
-            font-size: 10px; font-weight: 700; padding: 4px 12px; border-radius: 10px; 
-        }
-        .tag-red { background: rgba(239, 68, 68, 0.15); color: var(--danger); }
-        .tag-green { background: rgba(16, 185, 129, 0.15); color: var(--success); }
+        .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 20px; margin-bottom: 12px; position: relative; cursor: pointer; }
+        .price { color: var(--primary); font-size: 18px; font-weight: 800; }
+        .stock-tag { position: absolute; top: 15px; right: 15px; font-size: 10px; padding: 2px 8px; border-radius: 10px; }
+        .tag-red { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
+        .tag-green { background: rgba(16, 185, 129, 0.1); color: var(--success); }
 
-        /* Modal Design */
-        .modal { 
-            display: none; position: fixed; z-index: 9999; 
-            left: 0; top: 0; width: 100%; height: 100%; 
-            background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); 
-        }
-        .modal-content { 
-            position: fixed; bottom: 0; width: 100%; 
-            background: var(--card-bg); padding: 30px; 
-            border-radius: 30px 30px 0 0; border-top: 2px solid var(--border); 
-            max-width: 500px; left: 50%; transform: translateX(-50%);
-            animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        @keyframes slideUp { from { transform: translate(-50%, 100%); } }
+        .modal { display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); }
+        .modal-content { position: fixed; bottom: 0; width: 100%; background: var(--card-bg); padding: 30px; border-radius: 30px 30px 0 0; max-width: 500px; left: 50%; transform: translateX(-50%); }
 
-        .sheet-input { 
-            width: 100%; background: var(--bg-dark); border: 2px solid var(--border); 
-            padding: 16px; color: white; border-radius: 15px; 
-            outline: none; font-size: 14px; margin: 8px 0 20px 0; 
-            transition: 0.3s;
-        }
-        .sheet-input:focus { border-color: var(--primary); }
+        .sheet-input { width: 100%; background: var(--bg-dark); border: 2px solid var(--border); padding: 15px; color: white; border-radius: 12px; margin-bottom: 15px; outline: none; }
+        .btn-buy { background: #4f46e5; color: white; border: none; padding: 16px; width: 100%; border-radius: 15px; font-weight: bold; cursor: pointer; }
 
-        .btn-buy { 
-            background: #4f46e5; color: white; border: none; 
-            padding: 18px; width: 100%; border-radius: 16px; 
-            font-weight: 700; cursor: pointer; font-size: 15px; 
-            transition: 0.3s;
-        }
-        .btn-buy:active { transform: scale(0.96); }
+        .qris-box { background: white; border-radius: 15px; padding: 15px; margin: 15px auto; width: fit-content; min-height: 200px; }
+        .amount-highlight { background: var(--bg-dark); border: 2px dashed var(--primary); padding: 15px; border-radius: 12px; margin: 15px 0; text-align: center; }
+        .amount-highlight strong { color: var(--primary); font-size: 22px; }
 
-        /* QRIS Styling */
-        .qris-box { 
-            background: white; border-radius: 20px; padding: 15px; 
-            margin: 20px auto; width: fit-content; border: 4px solid var(--primary);
-            min-height: 230px; display: flex; align-items: center; justify-content: center;
-        }
-        .detail-box { 
-            background: var(--bg-dark); padding: 15px; border-radius: 15px; 
-            border: 1px solid var(--border); margin: 20px 0; font-size: 12px; 
-        }
-        .detail-item { display: flex; justify-content: space-between; margin-bottom: 8px; color: var(--text-gray); }
-        .detail-item span:last-child { color: #fff; font-weight: 600; }
-
-        .amount-highlight { 
-            background: rgba(245, 176, 65, 0.1); border: 2px dashed var(--primary); 
-            border-radius: 15px; padding: 15px; text-align: center; margin-bottom: 20px; 
-        }
-        .amount-highlight strong { color: var(--primary); font-size: 24px; display: block; }
-
-        .spinner { 
-            width: 18px; height: 18px; border: 3px solid rgba(255,255,255,0.2); 
-            border-top-color: #fff; border-radius: 50%; animation: spin 0.8s linear infinite; 
-            display: inline-block; margin-right: 8px; vertical-align: middle;
-        }
+        .spinner { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.8s linear infinite; display: inline-block; margin-right: 8px; }
         @keyframes spin { to { transform: rotate(360deg); } }
-
-        .data-box { 
-            background: #000; border: 1px solid var(--primary); padding: 20px; 
-            border-radius: 15px; margin-top: 15px; color: var(--primary); 
-            font-family: 'Courier New', monospace; font-weight: bold;
-            word-break: break-all;
-        }
     </style>
 </head>
 <body>
 
-<div id="errorToast" class="toast">Pesan Error</div>
+<div id="errorToast" class="toast"></div>
 
 <div class="header">
-    <img src="https://via.placeholder.com/150" class="profile-img" alt="Logo">
-    <div class="store-name">TAMA PREMIUM</div>
-    <p style="color: var(--text-gray); font-size: 12px; margin-top: 5px;">Automated Account Store</p>
+    <img src="https://via.placeholder.com/150" class="profile-img">
+    <h1 class="store-name">TAMA PREMIUM</h1>
 </div>
 
 <div class="stats-container">
-    <div class="stat-box"><div class="stat-val" id="totalProd">0</div><div class="stat-label">Produk</div></div>
+    <div class="stat-box"><div class="stat-val" id="totalProd">0</div><div class="stat-label">Total</div></div>
     <div class="stat-box"><div class="stat-val" id="totalStok">0</div><div class="stat-label">Ready</div></div>
-    <div class="stat-box"><div class="stat-val" id="totalTersedia">0</div><div class="stat-label">Kategori</div></div>
+    <div class="stat-box"><div class="stat-val" id="totalTersedia">0</div><div class="stat-label">Produk</div></div>
 </div>
 
 <button class="btn-cek-nav" onclick="openInvoiceModal()">🔍 CEK INVOICE / AMBIL AKUN</button>
-
 <div id="productList"></div>
 
 <div id="paymentModal" class="modal">
     <div class="modal-content">
         <div id="step-input">
-            <h2 id="payTitle" style="margin-bottom: 5px;">Detail Pesanan</h2>
-            <p style="font-size:13px; color:var(--text-gray); margin-bottom:25px;">Akun akan dikirim langsung setelah bayar</p>
-            
-            <label style="font-size: 11px; font-weight: 700; color: var(--primary);">NAMA PEMBELI</label>
-            <input type="text" id="buyerName" class="sheet-input" placeholder="Contoh: Budi">
-            
-            <label style="font-size: 11px; font-weight: 700; color: var(--primary);">EMAIL AKTIF</label>
-            <input type="email" id="buyerEmail" class="sheet-input" placeholder="email@gmail.com">
-            
-            <div id="payPrice" style="font-size:26px; font-weight:900; margin: 10px 0 25px 0; color:var(--primary); text-align:center;"></div>
-            
-            <button class="btn-buy" id="btnLanjutkan" onclick="tampilkanQRIS()">Lanjutkan ke Pembayaran</button>
+            <h2 id="payTitle">Detail Order</h2>
+            <br>
+            <input type="text" id="buyerName" class="sheet-input" placeholder="Nama Lengkap">
+            <input type="email" id="buyerEmail" class="sheet-input" placeholder="Email Aktif">
+            <div id="payPrice" style="text-align:center; font-size:20px; font-weight:bold; color:var(--primary); margin-bottom:20px;"></div>
+            <button class="btn-buy" id="btnLanjutkan" onclick="tampilkanQRIS()">Beli Sekarang</button>
         </div>
 
         <div id="step-qris" style="display:none; text-align:center;">
-            <h3>Selesaikan Pembayaran</h3>
-            <div class="qris-box" id="qrisCanvas">
-                </div>
-            
+            <h3>Scan QRIS</h3>
+            <div class="qris-box" id="qrisCanvas"></div>
             <div class="amount-highlight">
-                <span style="font-size: 12px; color: var(--text-gray);">Total Bayar:</span>
+                <small style="color:var(--text-gray)">Total Bayar:</small><br>
                 <strong id="totalAmountDisplay">Rp 0</strong>
             </div>
-
-            <div class="detail-box">
-                <div class="detail-item"><span>ID Transaksi</span> <span id="detId">-</span></div>
-                <div class="detail-item"><span>Status</span> <span id="paymentStatus" style="color:var(--primary)">MENUNGGU...</span></div>
-            </div>
-
-            <button class="btn-buy" disabled style="background:#1c2127; border: 1px solid var(--border);">
-                <span class="spinner"></span>CEK STATUS OTOMATIS
-            </button>
+            <button class="btn-buy" disabled style="background:#242a32;"><span class="spinner"></span>MENUNGGU BAYAR...</button>
         </div>
 
         <div id="step-success" style="display:none; text-align:center;">
-            <div style="font-size:60px; margin-bottom:15px;">✅</div>
-            <h2 style="color: var(--success);">Berhasil Terbayar!</h2>
-            <p id="trxIdDisp" style="font-size:12px; color:var(--text-gray); margin:10px 0;"></p>
-            <div class="data-box" id="finalData"></div>
-            <button class="btn-buy" style="background:var(--primary); color:black; margin-top:20px;" onclick="copyData()">SALIN AKUN</button>
-            <button class="btn-buy" style="background:var(--border); margin-top:10px;" onclick="location.reload()">KEMBALI KE TOKO</button>
+            <h2>✅ Berhasil!</h2>
+            <div id="finalData" style="background:black; padding:15px; border-radius:10px; margin:15px 0; color:var(--primary); font-family:monospace;"></div>
+            <button class="btn-buy" onclick="location.reload()">KEMBALI</button>
         </div>
 
-        <button id="btnClose" onclick="closeModal()" style="background:none; border:none; color:var(--danger); width:100%; margin-top:25px; cursor:pointer; font-weight:bold; font-size:12px;">BATALKAN TRANSAKSI</button>
+        <button id="btnClose" onclick="closeModal()" style="background:none; border:none; color:var(--danger); width:100%; margin-top:20px; cursor:pointer;">BATALKAN</button>
     </div>
 </div>
 
 <div id="invoiceModal" class="modal">
-    <div class="modal-content" style="bottom: auto; top: 50%; transform: translate(-50%, -50%); border-radius: 25px; width: 90%;">
-        <h2 style="text-align: center;">Riwayat Pesanan</h2>
-        <input type="text" id="inputTrxId" class="sheet-input" placeholder="Masukkan ID TRX (Contoh: TRX-123456)" style="margin-top:20px;">
-        <button class="btn-buy" onclick="cariInvoice()" style="background: var(--primary); color: black;">Cek Sekarang</button>
-        <div id="invoiceResult" style="margin-top:15px;"></div>
-        <button onclick="closeInvoiceModal()" style="background:none; border:none; color:var(--text-gray); width:100%; margin-top:20px; cursor:pointer; font-weight: bold;">TUTUP</button>
+    <div class="modal-content" style="bottom:50%; transform:translate(-50%, 50%)">
+        <h2>Cek Invoice</h2>
+        <input type="text" id="inputTrxId" class="sheet-input" placeholder="ID Transaksi">
+        <button class="btn-buy" onclick="cariInvoice()">CARI</button>
+        <div id="invoiceResult"></div>
+        <button onclick="closeInvoiceModal()" style="background:none; border:none; color:white; width:100%; margin-top:15px;">TUTUP</button>
     </div>
 </div>
 
 <script>
-    // --- KONFIGURASI ---
-    // GANTI VERCEL_URL DENGAN URL ASLI VERCEL KAMU!
-    const VERCEL_URL = "https://vercel.app"; 
+    // GANTI INI DENGAN URL VERCEL KAMU!
+    const VERCEL_URL = "https://proyek-kamu.vercel.app"; 
     const BASE_URL = "https://toko-tama-default-rtdb.asia-southeast1.firebasedatabase.app/";
     const CASHIFY_QRIS_ID = "8aa46a5a-ac64-44b4-b20d-2d1e1bbe1ec1";
 
     let produkCache = {};
-    let selectedProdId, selectedAkunId, selectedDataAkun, hargaFix;
-    let cashifyTransactionId = null;
-    let pollingInterval = null;
+    let selectedProdId, selectedAkunId, selectedDataAkun, hargaFix, cashifyTransactionId, pollingInterval;
 
     function showToast(msg, type = "error") {
         const t = document.getElementById('errorToast');
         t.innerText = msg;
-        t.className = "toast" + (type === "success" ? " success" : "");
-        t.classList.add('show');
-        setTimeout(() => t.classList.remove('show'), 3500);
+        t.className = "toast " + (type === "success" ? "success" : "") + " show";
+        setTimeout(() => t.classList.remove('show'), 3000);
     }
 
     async function fetchProducts() {
-        const container = document.getElementById('productList');
-        container.innerHTML = '<div style="text-align:center; padding:50px;"><span class="spinner"></span></div>';
-        
         try {
-            const [resP, resS] = await Promise.all([
-                fetch(`${BASE_URL}produk.json`),
-                fetch(`${BASE_URL}stok_akun.json`)
-            ]);
+            const [resP, resS] = await Promise.all([fetch(`${BASE_URL}produk.json`), fetch(`${BASE_URL}stok_akun.json`)]);
             const dataP = await resP.json();
             const dataS = await resS.json() || {};
-
-            if (!dataP) {
-                container.innerHTML = '<p style="text-align:center; color:var(--text-gray);">Belum ada produk tersedia.</p>';
-                return;
-            }
-
-            container.innerHTML = '';
-            let tP = 0, tS = 0, tT = 0;
-
+            const container = document.getElementById('productList');
+            container.innerHTML = "";
+            
             Object.keys(dataP).forEach(id => {
-                tP++;
-                const listAkun = dataS[id] ? Object.keys(dataS[id]) : [];
-                const jmlStok = listAkun.length;
-                if (jmlStok > 0) { tT++; tS += jmlStok; }
-
-                produkCache[id] = {
-                    nama: dataP[id].nama,
-                    harga: dataP[id].harga,
-                    stok: dataS[id] || {}
-                };
-
-                const hrg = parseInt(String(dataP[id].harga).replace(/\D/g, ''));
+                const stok = dataS[id] ? Object.keys(dataS[id]).length : 0;
+                produkCache[id] = { nama: dataP[id].nama, harga: dataP[id].harga, stok: dataS[id] || {} };
                 
                 const card = document.createElement('div');
-                card.className = 'card';
+                card.className = "card";
                 card.innerHTML = `
-                    <div class="stock-tag ${jmlStok === 0 ? 'tag-red' : 'tag-green'}">${jmlStok === 0 ? 'Habis' : jmlStok + ' Tersedia'}</div>
+                    <div class="stock-tag ${stok > 0 ? 'tag-green' : 'tag-red'}">${stok > 0 ? stok + ' Ready' : 'Habis'}</div>
                     <div class="card-title">${dataP[id].nama}</div>
-                    <div class="price">Rp ${hrg.toLocaleString('id-ID')}</div>
+                    <div class="price">Rp ${parseInt(dataP[id].harga).toLocaleString()}</div>
                 `;
-
-                card.onclick = () => jmlStok === 0 ? showToast('Maaf, stok habis!') : openPayment(id);
+                card.onclick = () => stok > 0 ? openPayment(id) : showToast("Stok Habis");
                 container.appendChild(card);
             });
-
-            document.getElementById('totalProd').innerText = tP;
-            document.getElementById('totalStok').innerText = tS;
-            document.getElementById('totalTersedia').innerText = tT;
-
-        } catch (e) {
-            container.innerHTML = '<p style="text-align:center; color:var(--danger);">Koneksi database bermasalah.</p>';
-        }
+        } catch (e) { showToast("Gagal muat produk"); }
     }
 
     function openPayment(id) {
-        const p = produkCache[id];
-        const keys = Object.keys(p.stok);
-        
         selectedProdId = id;
-        selectedAkunId = keys[0];
+        const p = produkCache[id];
+        selectedAkunId = Object.keys(p.stok)[0];
         selectedDataAkun = p.stok[selectedAkunId];
-        hargaFix = parseInt(String(p.harga).replace(/\D/g, ''));
-
+        hargaFix = parseInt(p.harga);
         document.getElementById('payTitle').innerText = p.nama;
-        document.getElementById('payPrice').innerText = "Rp " + hargaFix.toLocaleString('id-ID');
-        
-        document.getElementById('step-input').style.display = 'block';
-        document.getElementById('step-qris').style.display = 'none';
-        document.getElementById('step-success').style.display = 'none';
-        document.getElementById('btnClose').style.display = 'block';
-        document.getElementById('paymentModal').style.display = 'block';
+        document.getElementById('payPrice').innerText = "Total: Rp " + hargaFix.toLocaleString();
+        document.getElementById('paymentModal').style.display = "block";
     }
 
     async function tampilkanQRIS() {
-        const nama = document.getElementById('buyerName').value.trim();
-        const email = document.getElementById('buyerEmail').value.trim();
-        
-        if (nama.length < 3) return showToast("Nama terlalu pendek!");
-        if (!email.includes('@')) return showToast("Email tidak valid!");
-
         const btn = document.getElementById('btnLanjutkan');
         btn.disabled = true;
-        btn.innerHTML = '<span class="spinner"></span>Membangun QRIS...';
+        btn.innerHTML = "<span class='spinner'></span>Proses...";
 
         try {
             const res = await fetch(`${VERCEL_URL}/api/generate`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    id: CASHIFY_QRIS_ID,
-                    amount: hargaFix,
-                    useUniqueCode: true,
-                    expiredInMinutes: 15
-                })
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ id: CASHIFY_QRIS_ID, amount: hargaFix, useUniqueCode: true })
             });
-
             const result = await res.json();
-            if(!res.ok || !result.data) {
-                alert("Kesalahan Server: " + (result.error || "Gagal membuat QRIS"));
-                throw new Error();
-            }
+            if (!result.data) throw new Error(result.error || "Gagal");
 
-            const { qr_string, transactionId, totalAmount } = result.data;
-            cashifyTransactionId = transactionId;
-
-            // Render QR Image
-            document.getElementById('qrisCanvas').innerHTML = '';
-            new QRCode(document.getElementById('qrisCanvas'), {
-                text: qr_string,
-                width: 200,
-                height: 200,
-                colorDark : "#000000",
-                colorLight : "#ffffff",
-                correctLevel : QRCode.CorrectLevel.H
-            });
-
-            document.getElementById('detId').innerText = transactionId;
-            document.getElementById('totalAmountDisplay').innerText = "Rp " + totalAmount.toLocaleString('id-ID');
-            
-            document.getElementById('step-input').style.display = 'none';
-            document.getElementById('step-qris').style.display = 'block';
-            
+            cashifyTransactionId = result.data.transactionId;
+            document.getElementById('qrisCanvas').innerHTML = "";
+            new QRCode(document.getElementById('qrisCanvas'), { text: result.data.qr_string, width: 200, height: 200 });
+            document.getElementById('totalAmountDisplay').innerText = "Rp " + result.data.totalAmount.toLocaleString();
+            document.getElementById('step-input').style.display = "none";
+            document.getElementById('step-qris').style.display = "block";
             mulaiPolling();
-
-        } catch (e) {
-            showToast("Gagal memuat QRIS. Silahkan coba lagi.");
+        } catch (e) { 
+            alert("Error: " + e.message);
             btn.disabled = false;
-            btn.innerText = "Coba Lagi";
+            btn.innerHTML = "Coba Lagi";
         }
     }
 
     function mulaiPolling() {
-        if (pollingInterval) clearInterval(pollingInterval);
         pollingInterval = setInterval(async () => {
-            try {
-                const res = await fetch(`${VERCEL_URL}/api/check-status`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ transactionId: cashifyTransactionId })
-                });
-                const json = await res.json();
-                const stat = json.data?.status?.toLowerCase();
-
-                if (stat === 'paid' || stat === 'success') {
-                    clearInterval(pollingInterval);
-                    document.getElementById('paymentStatus').innerText = "LUNAS";
-                    document.getElementById('paymentStatus').style.color = "var(--success)";
-                    prosesLunas();
-                }
-            } catch (e) {
-                console.error("Polling error");
+            const res = await fetch(`${VERCEL_URL}/api/check-status`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ transactionId: cashifyTransactionId })
+            });
+            const json = await res.json();
+            if (json.data?.status?.toLowerCase() === 'paid') {
+                clearInterval(pollingInterval);
+                prosesLunas();
             }
-        }, 4000);
+        }, 5000);
     }
 
     async function prosesLunas() {
-        const trxId = "TRX-" + Math.floor(100000 + Math.random() * 899999);
-        try {
-            // Catat Transaksi di Firebase
-            await fetch(`${BASE_URL}transaksi/${trxId}.json`, {
-                method: 'PUT',
-                body: JSON.stringify({
-                    produk: document.getElementById('payTitle').innerText,
-                    data: selectedDataAkun,
-                    pembeli: document.getElementById('buyerName').value,
-                    email: document.getElementById('buyerEmail').value,
-                    tanggal: new Date().toLocaleString('id-ID')
-                })
-            });
-
-            // Hapus stok akun
-            await fetch(`${BASE_URL}stok_akun/${selectedProdId}/${selectedAkunId}.json`, { method: 'DELETE' });
-
-            document.getElementById('step-qris').style.display = 'none';
-            document.getElementById('step-success').style.display = 'block';
-            document.getElementById('btnClose').style.display = 'none';
-            document.getElementById('trxIdDisp').innerText = "ID Transaksi: " + trxId;
-            document.getElementById('finalData').innerText = selectedDataAkun;
-            showToast("Pembayaran Berhasil!", "success");
-
-        } catch (e) {
-            showToast("Error sistem. Hubungi Admin.");
-        }
-    }
-
-    async function closeModal() {
-        if (confirm("Batalkan pesanan ini?")) {
-            if (pollingInterval) clearInterval(pollingInterval);
-            
-            // Panggil API Cancel jika ada
-            try {
-                fetch(`${VERCEL_URL}/api/cancel-status`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ transactionId: cashifyTransactionId })
-                });
-            } catch(e) {}
-
-            document.getElementById('paymentModal').style.display = 'none';
-        }
-    }
-
-    async function cariInvoice() {
-        const id = document.getElementById('inputTrxId').value.trim().toUpperCase();
-        const box = document.getElementById('invoiceResult');
-        if (!id) return;
-        
-        box.innerHTML = '<span class="spinner"></span> Mencari...';
-        try {
-            const res = await fetch(`${BASE_URL}transaksi/${id}.json`);
-            const data = await res.json();
-            if (!data) {
-                box.innerHTML = '<p style="color:var(--danger); text-align:center;">Data tidak ditemukan.</p>';
-            } else {
-                box.innerHTML = `<div class="data-box" style="font-size:12px;">PRODUK: ${data.produk}<br><br>DATA AKUN:<br>${data.data}</div>`;
-            }
-        } catch (e) { box.innerHTML = 'Gagal memuat data.'; }
-    }
-
-    function openInvoiceModal() { document.getElementById('invoiceModal').style.display = 'block'; }
-    function closeInvoiceModal() { document.getElementById('invoiceModal').style.display = 'none'; }
-    
-    function copyData() {
-        const text = document.getElementById('finalData').innerText;
-        navigator.clipboard.writeText(text).then(() => {
-            showToast("Berhasil disalin ke clipboard!", "success");
-        }).catch(() => {
-            showToast("Gagal menyalin.");
+        const trxId = "TRX-" + Date.now();
+        await fetch(`${BASE_URL}transaksi/${trxId}.json`, {
+            method: "PUT",
+            body: JSON.stringify({ produk: produkCache[selectedProdId].nama, data: selectedDataAkun, pembeli: document.getElementById('buyerName').value })
         });
+        await fetch(`${BASE_URL}stok_akun/${selectedProdId}/${selectedAkunId}.json`, { method: "DELETE" });
+        document.getElementById('step-qris').style.display = "none";
+        document.getElementById('step-success').style.display = "block";
+        document.getElementById('finalData').innerText = selectedDataAkun;
     }
 
-    // Jalankan awal
+    function closeModal() { document.getElementById('paymentModal').style.display = "none"; clearInterval(pollingInterval); }
+    function openInvoiceModal() { document.getElementById('invoiceModal').style.display = "block"; }
+    function closeInvoiceModal() { document.getElementById('invoiceModal').style.display = "none"; }
+
     fetchProducts();
 </script>
 </body>
