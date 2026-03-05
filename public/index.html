@@ -42,7 +42,6 @@
 
         #productList { display: flex; flex-direction: column; gap: 12px; }
         
-        /* CARD STYLE DENGAN LOGO & TERJUAL */
         .card { background: var(--card-bg); border: 1px solid #242a32; border-radius: 18px; padding: 15px; position: relative; cursor: pointer; backdrop-filter: blur(10px); transition: transform 0.2s; display: flex; align-items: center; gap: 15px; }
         .card:active { transform: scale(0.98); }
         
@@ -145,6 +144,12 @@
         <div id="step-success" style="display:none; text-align:center;">
             <div style="font-size:40px; margin-bottom:10px;">✅</div>
             <h3 style="color:var(--success-green); margin-bottom:5px;">PEMBAYARAN LUNAS!</h3>
+            
+            <div style="font-size:11px; color:#8e959e; margin-bottom:15px; line-height:1.6; background:#0b0d0f; padding:12px; border-radius:12px; border:1.5px solid #242a32; text-align:left;">
+                <div style="margin-bottom:2px;">ID TRX: <b id="successTrxId" style="color:white; font-family:monospace;">—</b></div>
+                <div>EMAIL: <b id="successEmail" style="color:white;">—</b></div>
+            </div>
+
             <div class="data-box" id="finalData"></div>
             <button class="btn-buy" style="background:var(--success-green); margin-top:15px;" onclick="copyData('finalData')">SALIN AKUN</button>
             <button class="btn-buy" style="background:#242a32; margin-top:8px;" onclick="location.reload()">TUTUP</button>
@@ -189,14 +194,10 @@
                 if (jml > 0) { tT++; tS += jml; }
                 produkCache[id] = { nama: dataP[id].nama, harga: dataP[id].harga, stok: dataS[id] || {}, logo: dataP[id].logo };
                 const hrg = "Rp " + parseInt(String(dataP[id].harga).replace(/\D/g, '')).toLocaleString('id-ID');
-                
-                const card = document.createElement('div'); 
-                card.className = 'card';
+                const card = document.createElement('div'); card.className = 'card';
                 card.onclick = () => jml === 0 ? showToast('Stok habis!') : openPayment(id);
                 card.innerHTML = `
-                    <div class="prod-logo-container">
-                        <img src="${dataP[id].logo || 'https://via.placeholder.com/55'}" alt="logo">
-                    </div>
+                    <div class="prod-logo-container"><img src="${dataP[id].logo || 'https://via.placeholder.com/55'}" alt="logo"></div>
                     <div class="prod-details">
                         <div class="card-title">${dataP[id].nama}</div>
                         <div class="price">${hrg}</div>
@@ -261,20 +262,31 @@
 
     async function prosesLunas() {
         const sekarang = new Date();
-        const trxId = `TRX-${Math.floor(100000 + Math.random() * 899999)}`;
+        const tgl = String(sekarang.getDate()).padStart(2, '0');
+        const thn = sekarang.getFullYear();
+        const kodeAcak = Math.floor(100 + Math.random() * 899);
+        const urutan = Math.floor(10 + Math.random() * 89);
+        const trxId = `TRX-${tgl}${thn}${kodeAcak}17${urutan}`;
+        const emailUser = document.getElementById('buyerEmail').value;
+
         try {
             await fetch(`${BASE_URL}stok_akun/${selectedProdId}/${selectedAkunId}.json`, { method: 'DELETE' });
-            // Update terjual
             const currentTerjual = produkCache[selectedProdId].terjual || 0;
             await fetch(`${BASE_URL}produk/${selectedProdId}.json`, { method: 'PATCH', body: JSON.stringify({ terjual: currentTerjual + 1 }) });
             
             await fetch(`${BASE_URL}transaksi/${trxId}.json`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ produk: document.getElementById('payTitle').innerText, data: selectedDataAkun, nama: document.getElementById('buyerName').value, email: document.getElementById('buyerEmail').value, tanggal: sekarang.toLocaleString('id-ID'), id_trx: trxId })
+                body: JSON.stringify({ produk: document.getElementById('payTitle').innerText, data: selectedDataAkun, nama: document.getElementById('buyerName').value, email: emailUser, tanggal: sekarang.toLocaleString('id-ID'), id_trx: trxId })
             });
+
             document.getElementById('step-qris').style.display = 'none';
             document.getElementById('step-success').style.display = 'block';
+            
+            // SET DATA KE TAMPILAN BARU
+            document.getElementById('successTrxId').innerText = trxId;
+            document.getElementById('successEmail').innerText = emailUser;
+
             document.getElementById('finalData').innerText = selectedDataAkun;
             showToast("Pembayaran Berhasil!", "success");
         } catch (e) { showToast("Gagal Simpan Data!"); }
