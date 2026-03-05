@@ -2,67 +2,89 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Toko Tama Premium</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>NIDALOP STORE WEB</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         :root {
-            --primary-red: #e63946;
-            --glow: 0 0 15px rgba(230, 57, 70, 0.4);
-            --bg-color: #0b0d0f;
+            --primary-red: #ff4d4d;
+            --dark-bg: #0b0d0f;
+            --card-bg: rgba(22, 26, 30, 0.7);
+            --success-green: #10b981;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-        
         body { 
-            background-color: var(--bg-color); 
-            background-image: radial-gradient(#1a1d21 1px, transparent 1px);
-            background-size: 20px 20px;
+            background-color: var(--dark-bg);
+            background-image: radial-gradient(circle at top right, rgba(255, 77, 77, 0.1), transparent 300px);
+            background-attachment: fixed;
             color: #ffffff; 
-            padding: 20px; 
+            padding: 15px; 
             max-width: 500px; 
             margin: auto; 
+            overflow-x: hidden; 
         }
 
-        /* --- HEADER & STATS --- */
-        .header { display: flex; flex-direction: column; align-items: center; gap: 12px; margin-bottom: 25px; }
-        .profile-img { width: 90px; height: 90px; border-radius: 50%; border: 3px solid var(--primary-red); background: #222; overflow: hidden; box-shadow: var(--glow); }
-        .store-name { font-size: 1.5rem; font-weight: 800; text-shadow: var(--glow); }
+        .toast { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); background: var(--primary-red); color: white; padding: 12px 20px; border-radius: 12px; font-size: 13px; font-weight: bold; z-index: 10000; transition: 0.5s; box-shadow: 0 10px 20px rgba(0,0,0,0.4); width: 90%; max-width: 400px; text-align: center; }
+        .toast.show { top: 20px; }
+        .toast.success { background: var(--success-green); }
 
-        .stats-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 25px 0; }
-        .stat-box { background: #161a1e; padding: 15px 5px; border-radius: 16px; border: 1px solid #331010; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
-        .stat-val { font-size: 22px; font-weight: 900; color: var(--primary-red); display: block; }
-        .stat-label { font-size: 10px; color: #8e959e; text-transform: uppercase; font-weight: 700; }
+        .header { text-align: center; margin-bottom: 20px; padding-top: 10px; }
+        .profile-img { width: 75px; height: 75px; border-radius: 50%; border: 2px solid var(--primary-red); margin: 0 auto 10px; overflow: hidden; box-shadow: 0 0 15px rgba(255, 77, 77, 0.3); }
+        .store-name { font-size: 1.3rem; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; }
 
-        /* --- BUTTONS & CARDS --- */
-        .btn-cek-nav { background: #161a1e; border: 1px solid #331010; color: var(--primary-red); padding: 15px; border-radius: 18px; width: 100%; margin-bottom: 25px; font-weight: 800; cursor: pointer; box-shadow: 0 5px 15px rgba(0,0,0,0.4); }
-        
-        #productList { display: flex; flex-direction: column; gap: 15px; }
-        .card { background: #161a1e; border: 1px solid #242a32; border-radius: 20px; padding: 20px; position: relative; cursor: pointer; }
-        .card:hover { border-color: var(--primary-red); box-shadow: var(--glow); }
+        .stats-container { 
+            display: grid; 
+            grid-template-columns: repeat(3, 1fr); 
+            gap: 10px; 
+            margin-bottom: 20px; 
+        }
+        .stat-box { 
+            background: var(--card-bg); 
+            padding: 12px 5px; 
+            border-radius: 15px; 
+            text-align: center; 
+            border: 1px solid #242a32;
+        }
+        .stat-val { font-size: 18px; font-weight: 800; color: var(--primary-red); }
+        .stat-label { font-size: 9px; color: #8e959e; text-transform: uppercase; margin-top: 4px; font-weight: bold; }
+
+        .btn-cek-nav { background: var(--card-bg); border: 1px solid #331010; color: var(--primary-red); padding: 12px; border-radius: 15px; width: 100%; margin-bottom: 15px; font-size: 12px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+
+        #productList { display: flex; flex-direction: column; gap: 12px; }
+        .card { background: var(--card-bg); border: 1px solid #242a32; border-radius: 18px; padding: 18px; position: relative; cursor: pointer; backdrop-filter: blur(10px); transition: transform 0.2s; }
+        .card:active { transform: scale(0.98); }
+        .card-title { font-size: 15px; font-weight: 600; margin-bottom: 4px; padding-right: 70px; }
         .price { color: var(--primary-red); font-size: 18px; font-weight: 800; }
         
-        .stock-tag { position: absolute; top: 15px; right: 15px; font-size: 10px; font-weight: 700; padding: 4px 12px; border-radius: 20px; }
-        .tag-green { background: rgba(16, 185, 129, 0.2); color: #10b981; border: 1px solid #10b981; }
+        .stock-tag { position: absolute; top: 18px; right: 15px; font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 8px; }
+        .tag-red { background: rgba(255, 77, 77, 0.1); color: var(--primary-red); border: 1px solid var(--primary-red); }
+        .tag-green { background: rgba(16, 185, 129, 0.1); color: var(--success-green); border: 1px solid var(--success-green); }
 
-        /* --- MODAL --- */
         .modal { display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); }
-        .modal-content { position: fixed; bottom: 0; width: 100%; background: #161a1e; padding: 30px 25px; border-radius: 35px 35px 0 0; border-top: 3px solid var(--primary-red); max-width: 500px; left: 50%; transform: translateX(-50%); }
+        .modal-content { 
+            position: fixed; bottom: 0; width: 100%; max-width: 500px;
+            background: #161a1e; padding: 25px 20px 35px; border-radius: 30px 30px 0 0; 
+            border-top: 2px solid var(--primary-red); left: 50%; transform: translateX(-50%); 
+            max-height: 95vh; overflow-y: auto; 
+        }
 
-        .sheet-input { width: 100%; background: #0b0d0f; border: 2px solid #242a32; padding: 16px; color: white; border-radius: 16px; outline: none; margin-bottom: 15px; }
+        .sheet-input { width: 100%; background: #0b0d0f; border: 1.5px solid #242a32; padding: 14px; color: white; border-radius: 14px; outline: none; font-size: 14px; margin-bottom: 12px; }
         .sheet-input:focus { border-color: var(--primary-red); }
 
-        .btn-buy { background: var(--primary-red); color: white; border: none; padding: 18px; width: 100%; border-radius: 18px; font-weight: bold; cursor: pointer; box-shadow: var(--glow); }
-        .qris-box { background: white; border-radius: 20px; padding: 15px; margin: 15px auto; width: fit-content; box-shadow: var(--glow); }
-        
-        /* Jam & Timer Styles */
-        .trx-info { margin-top: 10px; color: #8e959e; font-size: 12px; }
-        .timer-highlight { color: var(--primary-red); font-weight: 900; font-size: 14px; }
-        .real-time-clock { font-family: monospace; background: #0b0d0f; padding: 5px 10px; border-radius: 8px; border: 1px solid #331010; color: #ff8080; margin-top: 10px; display: inline-block; }
+        .btn-buy { background: var(--primary-red); color: white; border: none; padding: 16px; width: 100%; border-radius: 14px; font-weight: bold; cursor: pointer; font-size: 14px; }
+        .btn-buy:disabled { background: #242a32; opacity: 0.7; }
 
-        .toast { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); background: #ef4444; color: white; padding: 12px 25px; border-radius: 12px; font-size: 13px; font-weight: bold; z-index: 10000; transition: 0.5s; }
-        .toast.show { top: 30px; }
-        .data-box { background: #0b0d0f; border: 2px dashed var(--primary-red); padding: 18px; border-radius: 16px; margin-top: 15px; color: #ff8080; word-break: break-all; }
+        .qris-box { background: white; border-radius: 15px; padding: 10px; margin: 15px auto; width: fit-content; line-height: 0; }
+        .qris-box canvas, .qris-box img { max-width: 200px !important; height: auto !important; }
+
+        .amount-highlight { background: #0b0d0f; border: 1.5px dashed var(--primary-red); border-radius: 12px; padding: 12px; text-align: center; margin: 10px 0; }
+        .amount-highlight strong { color: var(--primary-red); font-size: 20px; font-weight: 800; }
+        
+        .data-box { background: #000; border: 1.5px dashed var(--success-green); padding: 15px; border-radius: 12px; margin-top: 15px; color: var(--success-green); font-family: monospace; font-size: 14px; word-break: break-all; text-align: left; position: relative; }
+
+        .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.8s linear infinite; margin-right: 8px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
@@ -70,16 +92,14 @@
 <div id="errorToast" class="toast">Pesan Error</div>
 
 <div class="header">
-    <div class="profile-img">
-        <img id="admin-pp" src="https://via.placeholder.com/90?text=..." width="100%" style="height:100%; object-fit:cover;">
-    </div>
-    <div class="store-name">NIDALOPSTORE</div>
+    <div class="profile-img"><img src="https://raw.githubusercontent.com/bagus-api/storage/master/VpPBE.jpg" width="100%" height="100%" style="object-fit: cover;"></div>
+    <div class="store-name">NIDALOP STORE</div>
 </div>
 
 <div class="stats-container">
-    <div class="stat-box"><span class="stat-val" id="totalProd">0</span><span class="stat-label">Total</span></div>
-    <div class="stat-box"><span class="stat-val" id="totalStok">0</span><span class="stat-label">Ready</span></div>
-    <div class="stat-box"><span class="stat-val" id="totalTersedia">0</span><span class="stat-label">Produk</span></div>
+    <div class="stat-box"><div class="stat-val" id="totalProd">0</div><div class="stat-label">Total</div></div>
+    <div class="stat-box"><div class="stat-val" id="totalStok">0</div><div class="stat-label">Ready</div></div>
+    <div class="stat-box"><div class="stat-val" id="totalTersedia">0</div><div class="stat-label">Produk</div></div>
 </div>
 
 <button class="btn-cek-nav" onclick="openInvoiceModal()">🔍 CEK INVOICE / AMBIL AKUN</button>
@@ -88,65 +108,53 @@
 <div id="paymentModal" class="modal">
     <div class="modal-content">
         <div id="step-input">
-            <h2 id="payTitle" style="color:var(--primary-red)">Produk</h2>
-            <input type="text" id="buyerName" class="sheet-input" placeholder="Nama Lengkap" style="margin-top:20px;">
+            <h2 id="payTitle" style="color:var(--primary-red); margin-bottom:5px;">Produk</h2>
+            <p style="font-size:12px; color:#8e959e; margin-bottom:20px;">Lengkapi data di bawah ini</p>
+            <input type="text" id="buyerName" class="sheet-input" placeholder="Nama Lengkap">
             <input type="email" id="buyerEmail" class="sheet-input" placeholder="Email Aktif">
-            <div id="payPrice" style="font-size:24px; font-weight:900; margin-bottom:20px; color:var(--primary-red); text-align:center;"></div>
-            <button class="btn-buy" id="btnLanjutkan" onclick="tampilkanQRIS()">Lanjutkan Pembayaran</button>
+            <div id="payPrice" style="font-size:22px; font-weight:900; margin-bottom:20px; color:var(--primary-red); text-align:center;"></div>
+            <button class="btn-buy" id="btnLanjutkan" onclick="tampilkanQRIS()">Lanjutkan</button>
         </div>
 
         <div id="step-qris" style="display:none; text-align:center;">
-            <h3 style="color:var(--primary-red)">SCAN QRIS</h3>
+            <h3 style="color:var(--primary-red);">SCAN QRIS</h3>
             <div class="qris-box"><div id="qrisCanvas"></div></div>
-            <div style="background: #0b0d0f; padding: 10px; border-radius: 12px; border: 1px solid #331010;">
-                <span style="font-size: 11px; color: #8e959e;">Total Bayar:</span><br>
-                <strong id="totalAmountDisplay" style="color: var(--primary-red); font-size: 20px;">Rp 0</strong>
+            <div class="amount-highlight">
+                <span style="display:block; font-size:10px; color:#8e959e; margin-bottom:3px;">TOTAL BAYAR</span>
+                <strong id="totalAmountDisplay">Rp 0</strong>
             </div>
-            
-            <div class="trx-info">
-                ID TRX: <span id="displayTrxId">MENUNGGU...</span><br>
-                Sisa Waktu Bayar: <span id="countdown" class="timer-highlight">15:00</span><br>
-                <div id="clock" class="real-time-clock">00:00:00</div>
-            </div>
-
-            <button class="btn-buy" disabled style="background:#242a32; box-shadow:none; margin-top:15px;">MENUNGGU PEMBAYARAN...</button>
+            <p style="font-size:10px; color:#8e959e; margin-bottom:15px;">Sudah termasuk <b id="uniqueCodeDisplay" style="color:var(--primary-red)">kode unik</b></p>
+            <button class="btn-buy" disabled style="background:#242a32;"><span class="spinner"></span>PROSES...</button>
         </div>
 
         <div id="step-success" style="display:none; text-align:center;">
-            <h3 style="color:#10b981">BERHASIL! 🎉</h3>
+            <div style="font-size:40px; margin-bottom:10px;">✅</div>
+            <h3 style="color:var(--success-green);">SUKSES!</h3>
             <div class="data-box" id="finalData"></div>
-            <button class="btn-buy" style="margin-top:20px;" onclick="copyData()">SALIN AKUN</button>
-            <button class="btn-buy" style="background:#242a32; margin-top:10px;" onclick="location.reload()">TUTUP</button>
+            <button class="btn-buy" style="background:var(--success-green); margin-top:15px;" onclick="copyData('finalData')">SALIN AKUN</button>
+            <button class="btn-buy" style="background:#242a32; margin-top:8px;" onclick="location.reload()">TUTUP</button>
         </div>
 
-        <button id="btnClose" onclick="closeModal()" style="background:none; border:none; color:#ef4444; width:100%; margin-top:20px; cursor:pointer; font-weight:800;">BATALKAN</button>
+        <button id="btnClose" onclick="closeModal()" style="background:none; border:none; color:#888; width:100%; margin-top:20px; cursor:pointer; font-size:11px; font-weight:bold;">KEMBALI</button>
     </div>
 </div>
 
 <div id="invoiceModal" class="modal">
     <div class="modal-content">
-        <h2 style="color:var(--primary-red)">Cek Invoice</h2>
-        <input type="text" id="inputTrxId" class="sheet-input" placeholder="TRX-XXXXXX" style="margin-top:20px;">
-        <button class="btn-buy" onclick="cariInvoice()">CARI PESANAN</button>
+        <h2 style="color:var(--primary-red); margin-bottom:15px;">Cek Pesanan</h2>
+        <input type="text" id="inputTrxId" class="sheet-input" placeholder="Masukkan ID Transaksi (TRX-xxxxxx)">
+        <button class="btn-buy" onclick="cariInvoice()">CARI</button>
         <div id="invoiceResult"></div>
-        <button onclick="closeInvoiceModal()" style="background:none; border:none; color:#8e959e; width:100%; margin-top:20px; cursor:pointer;">TUTUP</button>
+        <button onclick="closeInvoiceModal()" style="background:none; border:none; color:#8e959e; width:100%; margin-top:15px; cursor:pointer; font-size:12px;">TUTUP</button>
     </div>
 </div>
 
 <script>
     const BASE_URL = "https://toko-tama-default-rtdb.asia-southeast1.firebasedatabase.app/";
-    const CASHIFY_QRIS_ID = "0f3aedc9-d0c2-4d18-8922-8d54e7e46da9"; 
-    const produkCache = {};
-    let selectedProdId, selectedAkunId, selectedDataAkun, hargaFix, cashifyTransactionId, pollingInterval, timerInterval, clockInterval;
+    const CASHIFY_QRIS_ID = "8aa46a5a-ac64-44b4-b20d-2d1e1bbe1ec1";
 
-    // Fungsi Jam Real-time
-    function startClock() {
-        if(clockInterval) clearInterval(clockInterval);
-        clockInterval = setInterval(() => {
-            const now = new Date();
-            document.getElementById('clock').innerText = now.toLocaleTimeString('id-ID');
-        }, 1000);
-    }
+    const produkCache = {};
+    let selectedProdId, selectedAkunId, selectedDataAkun, hargaFix, cashifyTransactionId, pollingInterval = null;
 
     function showToast(msg, type = "error") {
         const t = document.getElementById('errorToast');
@@ -154,36 +162,29 @@
         t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3000);
     }
 
-    async function loadAdminProfile() {
-        try {
-            const res = await fetch(`${BASE_URL}admin_config/profile_pic.json`);
-            const photoUrl = await res.json();
-            if (photoUrl) document.getElementById('admin-pp').src = photoUrl;
-        } catch (e) {}
-    }
-
     async function fetchProducts() {
         const container = document.getElementById('productList');
         try {
             const [resP, resS] = await Promise.all([fetch(`${BASE_URL}produk.json`), fetch(`${BASE_URL}stok_akun.json`)]);
             const dataP = await resP.json(); const dataS = await resS.json() || {};
+            if (!dataP) return container.innerHTML = '<p>Kosong.</p>';
             container.innerHTML = ''; let tP=0, tS=0, tT=0;
             Object.keys(dataP).forEach(id => {
                 tP++; const list = dataS[id] ? Object.keys(dataS[id]) : [];
                 const jml = list.length; if (jml > 0) { tT++; tS += jml; }
                 produkCache[id] = { nama: dataP[id].nama, harga: dataP[id].harga, stok: dataS[id] || {} };
+                const hrg = "Rp " + parseInt(String(dataP[id].harga).replace(/\D/g, '')).toLocaleString('id-ID');
                 const card = document.createElement('div');
                 card.className = 'card';
-                card.innerHTML = `<div class="stock-tag tag-green">${jml} Ready</div>
-                                  <div class="card-title">${dataP[id].nama}</div>
-                                  <div class="price">Rp ${parseInt(String(dataP[id].harga).replace(/\D/g, '')).toLocaleString('id-ID')}</div>`;
+                card.innerHTML = `<div class="stock-tag ${jml===0?'tag-red':'tag-green'}">${jml===0?'Habis':jml+' Ready'}</div>
+                                  <div class="card-title">${dataP[id].nama}</div><div class="price">${hrg}</div>`;
                 card.onclick = () => jml === 0 ? showToast('Habis!') : openPayment(id);
                 container.appendChild(card);
             });
             document.getElementById('totalProd').innerText = tP;
             document.getElementById('totalStok').innerText = tS;
             document.getElementById('totalTersedia').innerText = tT;
-        } catch (e) { container.innerHTML = 'Gagal load produk.'; }
+        } catch (e) { container.innerHTML = 'Error load.'; }
     }
 
     function openPayment(id) {
@@ -192,98 +193,112 @@
         hargaFix = parseInt(String(p.harga).replace(/\D/g, ''));
         document.getElementById('payTitle').innerText = p.nama;
         document.getElementById('payPrice').innerText = "Rp " + hargaFix.toLocaleString('id-ID');
-        document.getElementById('step-input').style.display = 'block';
-        document.getElementById('step-qris').style.display = 'none';
         document.getElementById('paymentModal').style.display = 'block';
     }
 
     async function tampilkanQRIS() {
         const n = document.getElementById('buyerName').value;
-        if(!n) return showToast("Isi Nama!");
-        const btn = document.getElementById('btnLanjutkan'); btn.disabled = true; btn.innerText = "Generating...";
-        
+        const e = document.getElementById('buyerEmail').value;
+        if(!n || !e) return showToast("Data belum lengkap!");
+        const btn = document.getElementById('btnLanjutkan'); btn.disabled = true; btn.innerHTML = "Processing...";
         try {
-            // Pastikan API Endpoint /api/generate lo bener dan bisa diakses
             const res = await fetch('/api/generate', {
                 method: 'POST', headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({ id: CASHIFY_QRIS_ID, amount: hargaFix, useUniqueCode: true, packageIds: ["id.dana"], expiredInMinutes: 15 })
             });
             const json = await res.json();
             if(!json.data) throw new Error();
-
-            const { qr_string, transactionId, totalAmount } = json.data;
+            const { qr_string, transactionId, totalAmount, uniqueNominal } = json.data;
             cashifyTransactionId = transactionId;
-            
-            document.getElementById('displayTrxId').innerText = transactionId;
             document.getElementById('step-input').style.display = 'none';
             document.getElementById('step-qris').style.display = 'block';
             document.getElementById('qrisCanvas').innerHTML = '';
-            new QRCode(document.getElementById('qrisCanvas'), { text: qr_string, width: 200, height: 200 });
+            new QRCode(document.getElementById('qrisCanvas'), { text: qr_string, width: 220, height: 220 });
             document.getElementById('totalAmountDisplay').innerText = "Rp " + totalAmount.toLocaleString('id-ID');
-            
-            startClock();
-            startTimer(15 * 60); 
+            document.getElementById('uniqueCodeDisplay').innerText = "Rp " + uniqueNominal;
             mulaiPolling();
-        } catch (err) { 
-            showToast("Gagal buat QRIS! Cek Koneksi/API"); 
-            btn.disabled = false; btn.innerText = "Lanjutkan"; 
-        }
-    }
-
-    function startTimer(d) {
-        let t = d; if(timerInterval) clearInterval(timerInterval);
-        timerInterval = setInterval(() => {
-            let m = Math.floor(t/60), s = t%60;
-            document.getElementById('countdown').innerText = (m<10?"0":"")+m+":"+(s<10?"0":"")+s;
-            if (--t < 0) { clearInterval(timerInterval); closeModal(); }
-        }, 1000);
+        } catch (err) { showToast("Gagal QRIS!"); btn.disabled = false; btn.innerHTML = "Lanjutkan"; }
     }
 
     function mulaiPolling() {
         if(pollingInterval) clearInterval(pollingInterval);
         pollingInterval = setInterval(async () => {
             try {
-                const res = await fetch('/api/check-status', {
-                    method: 'POST', headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ transactionId: cashifyTransactionId })
+                const res = await fetch('/api/check-status', { 
+                    method: 'POST', headers: {'Content-Type': 'application/json'}, 
+                    body: JSON.stringify({ transactionId: cashifyTransactionId }) 
                 });
                 const json = await res.json();
-                if (json.data?.status?.toLowerCase() === 'paid') {
-                    clearInterval(pollingInterval); clearInterval(timerInterval); clearInterval(clockInterval);
-                    prosesLunas();
+                if (json.data?.status?.toLowerCase() === 'paid') { 
+                    clearInterval(pollingInterval); 
+                    pollingInterval = null;
+                    prosesLunas(); 
                 }
-            } catch (e) {}
+            } catch (e) { console.log("Polling..."); }
         }, 5000);
     }
 
     async function prosesLunas() {
-        const trx = "TRX-" + Math.floor(100000 + Math.random() * 900000);
-        await fetch(`${BASE_URL}transaksi/${trx}.json`, { method: 'PUT', body: JSON.stringify({ produk: document.getElementById('payTitle').innerText, data: selectedDataAkun, nama: document.getElementById('buyerName').value, email: document.getElementById('buyerEmail').value, tanggal: new Date().toLocaleString('id-ID') }) });
+        const trxId = "TRX-" + Math.floor(100000 + Math.random() * 900000);
         await fetch(`${BASE_URL}stok_akun/${selectedProdId}/${selectedAkunId}.json`, { method: 'DELETE' });
+        await fetch(`${BASE_URL}transaksi/${trxId}.json`, { 
+            method: 'PUT', 
+            body: JSON.stringify({ 
+                produk: document.getElementById('payTitle').innerText, 
+                data: selectedDataAkun, 
+                nama: document.getElementById('buyerName').value, 
+                email: document.getElementById('buyerEmail').value, 
+                tanggal: new Date().toLocaleString('id-ID') 
+            }) 
+        });
         document.getElementById('step-qris').style.display = 'none';
         document.getElementById('step-success').style.display = 'block';
         document.getElementById('finalData').innerText = selectedDataAkun;
+        showToast("Lunas! Silakan ambil akun.", "success");
     }
 
-    function closeModal() {
-        clearInterval(pollingInterval); clearInterval(timerInterval); clearInterval(clockInterval);
-        document.getElementById('paymentModal').style.display = 'none';
+    function closeModal() { 
+        if(pollingInterval) clearInterval(pollingInterval); 
+        pollingInterval = null;
+        document.getElementById('paymentModal').style.display = 'none'; 
+        document.getElementById('step-input').style.display = 'block';
+        document.getElementById('step-qris').style.display = 'none';
+        document.getElementById('step-success').style.display = 'none';
     }
+
+    function closeInvoiceModal() { document.getElementById('invoiceModal').style.display = 'none'; }
+    function openInvoiceModal() { document.getElementById('invoiceModal').style.display = 'block'; }
 
     async function cariInvoice() {
         const id = document.getElementById('inputTrxId').value.trim().toUpperCase();
-        if(!id) return;
-        const res = await fetch(`${BASE_URL}transaksi/${id}.json`);
-        const d = await res.json();
-        if(!d) return document.getElementById('invoiceResult').innerHTML = "Tidak ditemukan";
-        document.getElementById('invoiceResult').innerHTML = `<div class="data-box">${d.data}</div>`;
+        if(!id) return showToast("Masukkan ID!");
+        const r = document.getElementById('invoiceResult');
+        r.innerHTML = '<p style="color:#8e959e;font-size:12px;margin-top:10px;">Mencari...</p>';
+        try {
+            const res = await fetch(`${BASE_URL}transaksi/${id}.json`);
+            const d = await res.json();
+            if(!d) return r.innerHTML = '<p style="color:red;font-size:12px;margin-top:10px;">ID Transaksi tidak ditemukan.</p>';
+            r.innerHTML = `
+                <div style="margin-top:15px; text-align:left;">
+                    <span style="font-size:11px; color:#8e959e;">PRODUK: ${d.produk}</span>
+                    <div class="data-box" id="invoiceDataText">${d.data}</div>
+                    <button class="btn-buy" style="background:var(--success-green); margin-top:10px; padding:10px;" onclick="copyData('invoiceDataText')">SALIN AKUN</button>
+                </div>`;
+        } catch (e) {
+            r.innerHTML = '<p style="color:red;font-size:12px;margin-top:10px;">Error koneksi.</p>';
+        }
     }
 
-    function openInvoiceModal() { document.getElementById('invoiceResult').innerHTML=''; document.getElementById('invoiceModal').style.display='block'; }
-    function closeInvoiceModal() { document.getElementById('invoiceModal').style.display='none'; }
-    function copyData() { navigator.clipboard.writeText(document.getElementById('finalData').innerText); showToast("Disalin!", "success"); }
+    function copyData(elementId) { 
+        const txt = document.getElementById(elementId).innerText;
+        navigator.clipboard.writeText(txt).then(() => {
+            showToast("Berhasil disalin!", "success");
+        }).catch(() => {
+            showToast("Gagal menyalin, silakan manual.");
+        });
+    }
 
-    fetchProducts(); loadAdminProfile();
+    fetchProducts();
 </script>
 </body>
 </html>
