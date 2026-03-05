@@ -77,7 +77,6 @@
         .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.8s linear infinite; margin-right: 8px; vertical-align: middle; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* Style untuk info kotak di atas QRIS */
         .qr-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 10px 0; }
         .qr-info-card { background: #0b0d0f; border: 1.5px solid #242a32; border-radius: 12px; padding: 10px; text-align: center; }
         .qr-info-label { font-size: 9px; color: #8e959e; text-transform: uppercase; font-weight: 700; margin-bottom: 4px; }
@@ -136,7 +135,7 @@
                 <strong id="totalAmountDisplay">Rp 0</strong>
             </div>
             <p style="font-size:10px; color:#8e959e; margin-bottom:15px;">Sudah termasuk kode unik <b id="uniqueCodeDisplay" style="color:var(--primary-red)">Rp 0</b></p>
-            <button class="btn-buy" disabled style="background:#242a32;"><span class="spinner"></span>MENUNGGU PEMBAYARAN...</button>
+            <button class="btn-buy" id="statusBayarBtn" disabled style="background:#242a32;"><span class="spinner"></span>MENUNGGU PEMBAYARAN...</button>
         </div>
 
         <div id="step-success" style="display:none; text-align:center;">
@@ -170,6 +169,7 @@
     const CASHIFY_QRIS_ID = "0f3aedc9-d0c2-4d18-8922-8d54e7e46da9";
     const produkCache = {};
     let selectedProdId, selectedAkunId, selectedDataAkun, hargaFix, cashifyTransactionId, pollingInterval = null;
+    let countdownInterval = null;
 
     function showToast(msg, type = "error") {
         const t = document.getElementById('errorToast');
@@ -218,7 +218,9 @@
 
             // Isi Info QRIS
             document.getElementById('qrTransactionIdDisplay').innerText = transactionId.slice(0, 10) + "...";
-            document.getElementById('qrExpiredInfo').innerText = "15:00";
+            
+            // Start Countdown 15 Menit
+            startCountdown(15 * 60);
 
             document.getElementById('step-input').style.display = 'none'; document.getElementById('step-qris').style.display = 'block';
             document.getElementById('qrisImg').src = `https://larabert-qrgen.hf.space/v1/create-qr-code?size=500x500&style=2&color=000000&data=${encodeURIComponent(qr_string)}`;
@@ -228,6 +230,29 @@
         } catch (err) { showToast("Gagal QRIS"); btn.disabled = false; }
     }
 
+    function startCountdown(duration) {
+        if (countdownInterval) clearInterval(countdownInterval);
+        let timer = duration, minutes, seconds;
+        const display = document.getElementById('qrExpiredInfo');
+        const btn = document.getElementById('statusBayarBtn');
+
+        countdownInterval = setInterval(() => {
+            minutes = parseInt(timer / 60, 10);
+            seconds = parseInt(timer % 60, 10);
+            minutes = minutes < 10 ? "0" + minutes : minutes;
+            seconds = seconds < 10 ? "0" + seconds : seconds;
+            display.innerText = minutes + ":" + seconds;
+
+            if (--timer < 0) {
+                clearInterval(countdownInterval);
+                display.innerText = "EXPIRED";
+                display.style.color = "red";
+                btn.innerHTML = "WAKTU HABIS - SILAKAN ULANG";
+                btn.style.background = "#555";
+            }
+        }, 1000);
+    }
+
     function onQrLoaded() { document.getElementById('qrLoading').style.display = 'none'; document.getElementById('qrisImg').style.display = 'block'; }
 
     function mulaiPolling() {
@@ -235,7 +260,11 @@
         pollingInterval = setInterval(async () => {
             try {
                 const res = await fetch('/api/check-status', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ transactionId: cashifyTransactionId }) });
-                const json = await res.json(); if (json.data?.status?.toLowerCase() === 'paid') { clearInterval(pollingInterval); prosesLunas(); }
+                const json = await res.json(); if (json.data?.status?.toLowerCase() === 'paid') { 
+                    clearInterval(pollingInterval); 
+                    clearInterval(countdownInterval);
+                    prosesLunas(); 
+                }
             } catch (e) {}
         }, 5000);
     }
@@ -274,7 +303,11 @@
         } catch (e) { showToast("Gagal Simpan Data!"); }
     }
 
-    function closeModal() { if (pollingInterval) clearInterval(pollingInterval); document.getElementById('paymentModal').style.display = 'none'; }
+    function closeModal() { 
+        if (pollingInterval) clearInterval(pollingInterval); 
+        if (countdownInterval) clearInterval(countdownInterval);
+        document.getElementById('paymentModal').style.display = 'none'; 
+    }
     function closeInvoiceModal() { document.getElementById('invoiceModal').style.display = 'none'; }
     function openInvoiceModal() { document.getElementById('invoiceModal').style.display = 'block'; }
 
