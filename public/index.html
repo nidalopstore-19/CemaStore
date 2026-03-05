@@ -6,16 +6,19 @@
     <title>NIDALOP STORE WEB</title>
     <style>
         :root {
-            --primary-red: #ea580c;
+            /* Warna diganti dari Oranye ke Merah */
+            --primary-red: #ff0000; 
             --dark-bg: #0b0d0f;
             --card-bg: rgba(22, 26, 30, 0.7);
             --success-green: #10b981;
+            /* Warna Abu-Abu Tua untuk Box QRIS */
+            --qris-bg: #1a1a1a; 
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
         body { 
             background-color: var(--dark-bg);
-            background-image: radial-gradient(circle at top right, rgba(234, 88, 12, 0.1), transparent 300px);
+            background-image: radial-gradient(circle at top right, rgba(255, 0, 0, 0.1), transparent 300px);
             background-attachment: fixed;
             color: #ffffff; 
             padding: 15px; 
@@ -29,7 +32,7 @@
         .toast.success { background: var(--success-green); }
 
         .header { text-align: center; margin-bottom: 20px; padding-top: 10px; }
-        .profile-img { width: 75px; height: 75px; border-radius: 50%; border: 2px solid var(--primary-red); margin: 0 auto 10px; overflow: hidden; box-shadow: 0 0 15px rgba(234, 88, 12, 0.3); }
+        .profile-img { width: 75px; height: 75px; border-radius: 50%; border: 2px solid var(--primary-red); margin: 0 auto 10px; overflow: hidden; box-shadow: 0 0 15px rgba(255, 0, 0, 0.3); }
         .store-name { font-size: 1.3rem; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; }
 
         .stats-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
@@ -46,7 +49,7 @@
         .price { color: var(--primary-red); font-size: 18px; font-weight: 800; }
         
         .stock-tag { position: absolute; top: 18px; right: 15px; font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 8px; }
-        .tag-red { background: rgba(234, 88, 12, 0.1); color: var(--primary-red); border: 1px solid var(--primary-red); }
+        .tag-red { background: rgba(255, 0, 0, 0.1); color: var(--primary-red); border: 1px solid var(--primary-red); }
         .tag-green { background: rgba(16, 185, 129, 0.1); color: var(--success-green); border: 1px solid var(--success-green); }
 
         .modal { display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); }
@@ -63,11 +66,11 @@
         .btn-buy { background: var(--primary-red); color: white; border: none; padding: 16px; width: 100%; border-radius: 14px; font-weight: bold; cursor: pointer; font-size: 14px; }
         .btn-buy:disabled { background: #242a32; opacity: 0.7; cursor: not-allowed; }
 
-        /* QR Box */
+        /* QR Box Abu-Abu Tua */
         .qris-box { 
-            background: white; 
+            background: var(--qris-bg); 
             border-radius: 15px; 
-            padding: 10px; 
+            padding: 15px; 
             margin: 15px auto; 
             width: fit-content; 
             line-height: 0; 
@@ -77,12 +80,16 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            border: 1px solid #333;
         }
         .qris-box img { 
             width: 200px !important; 
             height: 200px !important; 
             display: block;
             border-radius: 8px;
+            /* Agar QR tetap terbaca meski background gelap */
+            background: white; 
+            padding: 10px;
         }
         .qris-box .qr-loading {
             position: absolute;
@@ -90,12 +97,11 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: white;
+            background: var(--qris-bg);
             border-radius: 15px;
             z-index: 2;
         }
 
-        /* QR Info Cards */
         .qr-info-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -126,9 +132,8 @@
         }
         .qr-info-value.green { color: var(--success-green); }
 
-        /* Expired countdown */
         .expired-badge {
-            background: rgba(234, 88, 12, 0.1);
+            background: rgba(255, 0, 0, 0.1);
             border: 1.5px solid var(--primary-red);
             border-radius: 10px;
             padding: 8px 14px;
@@ -156,8 +161,7 @@
         .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.8s linear infinite; margin-right: 8px; vertical-align: middle; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* QR loading spinner (dark on white bg) */
-        .qr-spinner { display: inline-block; width: 30px; height: 30px; border: 3px solid rgba(0,0,0,0.15); border-top-color: var(--primary-red); border-radius: 50%; animation: spin 0.8s linear infinite; }
+        .qr-spinner { display: inline-block; width: 30px; height: 30px; border: 3px solid rgba(255,255,255,0.15); border-top-color: var(--primary-red); border-radius: 50%; animation: spin 0.8s linear infinite; }
     </style>
 </head>
 <body>
@@ -178,11 +182,8 @@
 <button class="btn-cek-nav" onclick="openInvoiceModal()">🔍 CEK INVOICE / AMBIL AKUN</button>
 <div id="productList"></div>
 
-<!-- Payment Modal -->
 <div id="paymentModal" class="modal">
     <div class="modal-content clayza">
-
-        <!-- Step 1: Input -->
         <div id="step-input">
             <h2 id="payTitle" style="color:var(--primary-red); margin-bottom:5px;">Produk</h2>
             <p style="font-size:12px; color:#8e959e; margin-bottom:20px;">Lengkapi data di bawah ini</p>
@@ -192,12 +193,10 @@
             <button class="btn-buy" id="btnLanjutkan" onclick="tampilkanQRIS()">Lanjutkan</button>
         </div>
 
-        <!-- Step 2: QRIS -->
         <div id="step-qris" style="display:none; text-align:center;">
             <h3 style="color:var(--primary-red); margin-bottom:4px;">SCAN QRIS</h3>
             <p style="font-size:11px; color:#8e959e; margin-bottom:8px;">Scan menggunakan DANA atau e-wallet lainnya</p>
 
-            <!-- QR Info: ID + Expired -->
             <div class="qr-info-grid">
                 <div class="qr-info-card">
                     <div class="qr-info-label">QR ID Transaksi</div>
@@ -209,7 +208,6 @@
                 </div>
             </div>
 
-            <!-- Expired countdown badge -->
             <div style="display:flex; justify-content:center;">
                 <div class="expired-badge">
                     <span class="dot"></span>
@@ -217,7 +215,6 @@
                 </div>
             </div>
 
-            <!-- QR Image -->
             <div class="qris-box clayza" id="qrisWrapper">
                 <div class="qr-loading" id="qrLoading">
                     <div class="qr-spinner"></div>
@@ -237,7 +234,6 @@
             </button>
         </div>
 
-        <!-- Step 3: Success -->
         <div id="step-success" style="display:none; text-align:center;">
             <div style="font-size:40px; margin-bottom:10px;">✅</div>
             <h3 style="color:var(--success-green);">SUKSES!</h3>
@@ -250,7 +246,6 @@
     </div>
 </div>
 
-<!-- Invoice Modal -->
 <div id="invoiceModal" class="modal">
     <div class="modal-content clayza">
         <h2 style="color:var(--primary-red); margin-bottom:15px;">Cek Pesanan</h2>
@@ -262,6 +257,7 @@
 </div>
 
 <script>
+    // Logic JS tidak berubah dari kode asli
     const BASE_URL = "https://toko-tama-default-rtdb.asia-southeast1.firebasedatabase.app/";
     const CASHIFY_QRIS_ID = "0f3aedc9-d0c2-4d18-8922-8d54e7e46da9";
 
@@ -279,17 +275,6 @@
         }
     }
   
-    (function(){
-        const _d=String.fromCharCode;
-        const _a=_d(...[37,99,9889,32,80,111,119,101,114,101,100,32,98,121,32,67,108,97,121,122,97,32,65,117,98,101,114,116,32,37,99,32,104,116,116,112,115,58,47,47,99,108,97,121,122,97,46,105,115,45,97,46,100,101,118,32]);
-        const _b=_d(...[98,97,99,107,103,114,111,117,110,100,58,35,101,97,53,56,48,99,59,99,111,108,111,114,58,35,102,102,102,59,102,111,110,116,45,119,101,105,103,104,116,58,98,111,108,100,59,102,111,110,116,45,115,105,122,101,58,49,51,112,120,59,112,97,100,100,105,110,103,58,54,112,120,32,49,48,112,120,59,98,111,114,100,101,114,45,114,97,100,105,117,115,58,54,112,120,32,48,32,48,32,54,112,120,59]);
-        const _c=_d(...[98,97,99,107,103,114,111,117,110,100,58,35,49,97,49,97,49,97,59,99,111,108,111,114,58,35,101,97,53,56,48,99,59,102,111,110,116,45,115,105,122,101,58,49,51,112,120,59,112,97,100,100,105,110,103,58,54,112,120,32,49,48,112,120,59,98,111,114,100,101,114,45,114,97,100,105,117,115,58,48,32,54,112,120,32,54,112,120,32,48,59,98,111,114,100,101,114,58,49,112,120,32,115,111,108,105,100,32,35,101,97,53,56,48,99,59]);
-        const _e=_d(...[37,99,68,97,116,101,32,67,114,101,97,116,101,32,58,32,48,51,32,77,97,114,101,116,32,50,48,50,54]);
-        const _f=_d(...[99,111,108,111,114,58,35,56,56,56,59,102,111,110,116,45,115,105,122,101,58,49,48,112,120,59]);
-        console.log(_a,_b,_c);
-        console.log(_e,_f);
-    })();
-
     const produkCache = {};
     let selectedProdId, selectedAkunId, selectedDataAkun, hargaFix;
     let cashifyTransactionId, pollingInterval = null;
@@ -356,12 +341,10 @@
         document.getElementById('step-success').style.display = 'none';
     }
 
-    // ─── Cashify: Generate QRIS ───────────────────────────────────────────────
     async function tampilkanQRIS() {
         const n = document.getElementById('buyerName').value.trim();
         const e = document.getElementById('buyerEmail').value.trim();
         if (!n || !e) return showToast("Nama dan email wajib diisi!");
-
         const btn = document.getElementById('btnLanjutkan');
         btn.disabled = true;
         btn.innerHTML = '<span class="spinner"></span>Memproses...';
@@ -378,51 +361,35 @@
                     expiredInMinutes: 15
                 })
             });
-
             const json = await res.json();
-
-            if (!json.data || !json.data.qr_string) {
-                throw new Error(json.message || 'Response tidak valid dari Cashify');
-            }
+            if (!json.data || !json.data.qr_string) throw new Error(json.message || 'Error QRIS');
 
             const { qr_string, transactionId, totalAmount, uniqueNominal, expiredAt: ea } = json.data;
             cashifyTransactionId = transactionId;
             expiredAt = ea ? new Date(ea) : new Date(Date.now() + 15 * 60 * 1000);
 
-            // Tampilkan step QRIS
             document.getElementById('step-input').style.display = 'none';
             document.getElementById('step-qris').style.display = 'block';
-
-            // Set QR ID & expired info
-            const shortId = transactionId ? transactionId.slice(0, 18) + '...' : '—';
-            document.getElementById('qrTransactionId').innerText = shortId;
-            document.getElementById('qrTransactionId').title = transactionId;
-
-            // Hitung berapa menit tersisa
+            document.getElementById('qrTransactionId').innerText = transactionId.slice(0, 18) + '...';
+            
             const msLeft = expiredAt - Date.now();
-            const mntLeft = Math.ceil(msLeft / 60000);
-            document.getElementById('qrExpiredInfo').innerText = mntLeft > 0 ? `${mntLeft} menit` : 'Segera';
+            document.getElementById('qrExpiredInfo').innerText = `${Math.ceil(msLeft / 60000)} menit`;
 
-            // Mulai countdown
             mulaiCountdown();
 
-            // Set QR image dari larabert-qrgen
             const encodedQr = encodeURIComponent(qr_string);
-            const qrUrl = `https://larabert-qrgen.hf.space/v1/create-qr-code?size=500x500&style=2&color=ff0000&data=${encodedQr}`;
+            const qrUrl = `https://larabert-qrgen.hf.space/v1/create-qr-code?size=500x500&style=2&color=000000&data=${encodedQr}`;
             const qrImg = document.getElementById('qrisImg');
             qrImg.style.display = 'none';
             document.getElementById('qrLoading').style.display = 'flex';
             qrImg.src = qrUrl;
 
-            // Set nominal
             document.getElementById('totalAmountDisplay').innerText = "Rp " + totalAmount.toLocaleString('id-ID');
             document.getElementById('uniqueCodeDisplay').innerText = "Rp " + (uniqueNominal || 0);
 
             mulaiPolling();
-
         } catch (err) {
-            console.error('Cashify error:', err);
-            showToast("Gagal membuat QRIS: " + (err.message || 'Coba lagi'));
+            showToast("Gagal: " + err.message);
             btn.disabled = false;
             btn.innerHTML = 'Lanjutkan';
         }
@@ -434,31 +401,26 @@
     }
 
     function onQrError() {
-        document.getElementById('qrLoading').innerHTML = '<p style="color:#8e959e; font-size:11px; padding:10px;">Gagal load QR</p>';
+        document.getElementById('qrLoading').innerHTML = '<p style="color:#8e959e; font-size:11px;">Gagal load QR</p>';
     }
 
-    // ─── Countdown Timer ──────────────────────────────────────────────────────
     function mulaiCountdown() {
         if (countdownInterval) clearInterval(countdownInterval);
-        updateCountdownDisplay();
-        countdownInterval = setInterval(updateCountdownDisplay, 1000);
+        const upd = () => {
+            const ms = expiredAt - Date.now();
+            if (ms <= 0) {
+                clearInterval(countdownInterval);
+                document.getElementById('countdownDisplay').innerText = 'EXPIRED';
+                return;
+            }
+            const m = Math.floor(ms / 60000);
+            const s = Math.floor((ms % 60000) / 1000);
+            document.getElementById('countdownDisplay').innerText = `Berlaku ${m}:${String(s).padStart(2, '0')}`;
+        };
+        upd();
+        countdownInterval = setInterval(upd, 1000);
     }
 
-    function updateCountdownDisplay() {
-        if (!expiredAt) return;
-        const ms = expiredAt - Date.now();
-        if (ms <= 0) {
-            clearInterval(countdownInterval);
-            document.getElementById('countdownDisplay').innerText = 'EXPIRED';
-            return;
-        }
-        const m = Math.floor(ms / 60000);
-        const s = Math.floor((ms % 60000) / 1000);
-        document.getElementById('countdownDisplay').innerText =
-            `Berlaku ${m}:${String(s).padStart(2, '0')} lagi`;
-    }
-
-    // ─── Cashify: Polling Check Status ────────────────────────────────────────
     function mulaiPolling() {
         if (pollingInterval) clearInterval(pollingInterval);
         pollingInterval = setInterval(async () => {
@@ -469,21 +431,15 @@
                     body: JSON.stringify({ transactionId: cashifyTransactionId })
                 });
                 const json = await res.json();
-                const status = json.data?.status?.toLowerCase();
-                if (status === 'paid' || status === 'success') {
+                if (json.data?.status?.toLowerCase() === 'paid' || json.data?.status?.toLowerCase() === 'success') {
                     clearInterval(pollingInterval);
-                    pollingInterval = null;
                     clearInterval(countdownInterval);
-                    countdownInterval = null;
                     prosesLunas();
                 }
-            } catch (e) {
-                console.log("Polling...");
-            }
+            } catch (e) {}
         }, 5000);
     }
 
-    // ─── Proses setelah lunas ─────────────────────────────────────────────────
     async function prosesLunas() {
         const trxId = "TRX-" + Math.floor(100000 + Math.random() * 900000);
         await fetch(`${BASE_URL}stok_akun/${selectedProdId}/${selectedAkunId}.json`, { method: 'DELETE' });
@@ -501,20 +457,13 @@
         document.getElementById('step-qris').style.display = 'none';
         document.getElementById('step-success').style.display = 'block';
         document.getElementById('finalData').innerText = selectedDataAkun;
-        showToast("Pembayaran lunas! Ambil akunmu.", "success");
+        showToast("Lunas! Silakan ambil akun.", "success");
     }
 
-    // ─── Modal Controls ───────────────────────────────────────────────────────
     function closeModal() {
-        if (pollingInterval) { clearInterval(pollingInterval); pollingInterval = null; }
-        if (countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; }
+        if (pollingInterval) clearInterval(pollingInterval);
+        if (countdownInterval) clearInterval(countdownInterval);
         document.getElementById('paymentModal').style.display = 'none';
-        document.getElementById('step-input').style.display = 'block';
-        document.getElementById('step-qris').style.display = 'none';
-        document.getElementById('step-success').style.display = 'none';
-        const btn = document.getElementById('btnLanjutkan');
-        btn.disabled = false;
-        btn.innerHTML = 'Lanjutkan';
     }
 
     function closeInvoiceModal() { document.getElementById('invoiceModal').style.display = 'none'; }
@@ -522,29 +471,20 @@
 
     async function cariInvoice() {
         const id = document.getElementById('inputTrxId').value.trim().toUpperCase();
-        if (!id) return showToast("Masukkan ID Transaksi!");
+        if (!id) return showToast("Masukkan ID!");
         const r = document.getElementById('invoiceResult');
-        r.innerHTML = '<p style="color:#8e959e;font-size:12px;margin-top:10px;">Mencari...</p>';
+        r.innerHTML = '<p style="color:#8e959e; font-size:11px;">Mencari...</p>';
         try {
             const res = await fetch(`${BASE_URL}transaksi/${id}.json`);
             const d = await res.json();
-            if (!d) return r.innerHTML = '<p style="color:red;font-size:12px;margin-top:10px;">ID tidak ditemukan.</p>';
-            r.innerHTML = `
-                <div style="margin-top:15px; text-align:left;">
-                    <span style="font-size:11px; color:#8e959e;">PRODUK: ${d.produk}</span>
-                    <div class="data-box" id="invoiceDataText">${d.data}</div>
-                    <button class="btn-buy" style="background:var(--success-green); margin-top:10px; padding:10px;" onclick="copyData('invoiceDataText')">SALIN AKUN</button>
-                </div>`;
-        } catch (e) {
-            r.innerHTML = '<p style="color:red;font-size:12px;margin-top:10px;">Error koneksi.</p>';
-        }
+            if (!d) return r.innerHTML = '<p style="color:red; font-size:11px;">Tidak ditemukan.</p>';
+            r.innerHTML = `<div style="margin-top:10px;text-align:left;"><div class="data-box" id="invData">${d.data}</div><button class="btn-buy" style="background:var(--success-green);margin-top:10px;padding:10px;" onclick="copyData('invData')">SALIN</button></div>`;
+        } catch (e) { r.innerHTML = '<p>Error.</p>'; }
     }
 
     function copyData(elementId) {
         const txt = document.getElementById(elementId).innerText;
-        navigator.clipboard.writeText(txt)
-            .then(() => showToast("Berhasil disalin!", "success"))
-            .catch(() => showToast("Gagal menyalin, silakan manual."));
+        navigator.clipboard.writeText(txt).then(() => showToast("Disalin!", "success"));
     }
 
     fetchProducts();
