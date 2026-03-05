@@ -41,12 +41,20 @@
         .btn-cek-nav { background: var(--card-bg); border: 1px solid #331010; color: var(--primary-red); padding: 12px; border-radius: 15px; width: 100%; margin-bottom: 15px; font-size: 12px; font-weight: bold; cursor: pointer; transition: 0.2s; }
 
         #productList { display: flex; flex-direction: column; gap: 12px; }
-        .card { background: var(--card-bg); border: 1px solid #242a32; border-radius: 18px; padding: 18px; position: relative; cursor: pointer; backdrop-filter: blur(10px); transition: transform 0.2s; }
-        .card:active { transform: scale(0.98); }
-        .card-title { font-size: 15px; font-weight: 600; margin-bottom: 4px; padding-right: 70px; }
-        .price { color: var(--primary-red); font-size: 18px; font-weight: 800; }
         
-        .stock-tag { position: absolute; top: 18px; right: 15px; font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 8px; }
+        /* CARD STYLE DENGAN LOGO & TERJUAL */
+        .card { background: var(--card-bg); border: 1px solid #242a32; border-radius: 18px; padding: 15px; position: relative; cursor: pointer; backdrop-filter: blur(10px); transition: transform 0.2s; display: flex; align-items: center; gap: 15px; }
+        .card:active { transform: scale(0.98); }
+        
+        .prod-logo-container { width: 55px; height: 55px; border-radius: 14px; overflow: hidden; border: 1px solid #333; flex-shrink: 0; background: #000; }
+        .prod-logo-container img { width: 100%; height: 100%; object-fit: cover; }
+
+        .prod-details { flex-grow: 1; }
+        .card-title { font-size: 15px; font-weight: 600; color: #fff; margin-bottom: 2px; }
+        .price { color: var(--primary-red); font-size: 17px; font-weight: 800; }
+        .terjual-info { font-size: 10px; color: #8e959e; font-weight: bold; margin-top: 2px; }
+
+        .stock-tag { position: absolute; top: 15px; right: 15px; font-size: 9px; font-weight: 800; padding: 3px 8px; border-radius: 8px; text-transform: uppercase; }
         .tag-red { background: rgba(255, 0, 0, 0.1); color: var(--primary-red); border: 1px solid var(--primary-red); }
         .tag-green { background: rgba(16, 185, 129, 0.1); color: var(--success-green); border: 1px solid var(--success-green); }
 
@@ -64,11 +72,9 @@
         .btn-buy { background: var(--primary-red); color: white; border: none; padding: 16px; width: 100%; border-radius: 14px; font-weight: bold; cursor: pointer; font-size: 14px; }
         .btn-buy:disabled { background: #242a32; opacity: 0.7; cursor: not-allowed; }
 
-        .qris-box { 
-            background: var(--qris-bg); border-radius: 15px; padding: 15px; margin: 15px auto; width: fit-content; line-height: 0; position: relative; min-width: 180px; min-height: 180px; display: flex; align-items: center; justify-content: center; border: 1px solid #333;
-        }
+        .qris-box { background: var(--qris-bg); border-radius: 15px; padding: 15px; margin: 15px auto; width: fit-content; line-height: 0; position: relative; min-width: 180px; min-height: 180px; display: flex; align-items: center; justify-content: center; border: 1px solid #333; }
         .qris-box img { width: 200px !important; height: 200px !important; display: block; border-radius: 8px; background: white; padding: 10px; }
-        .qris-box .qr-loading { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: var(--qris-bg); border-radius: 15px; z-index: 2; }
+        .qr-loading { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: var(--qris-bg); border-radius: 15px; z-index: 2; }
 
         .amount-highlight { background: #0b0d0f; border: 1.5px dashed var(--primary-red); border-radius: 12px; padding: 12px; text-align: center; margin: 10px 0; }
         .amount-highlight strong { color: var(--primary-red); font-size: 20px; font-weight: 800; }
@@ -87,12 +93,12 @@
 
 <div id="errorToast" class="toast">Pesan Error</div>
 
-<div class="header clayza">
+<div class="header">
     <div class="profile-img"><img src="https://raw.githubusercontent.com/bagus-api/storage/master/VpPBE.jpg" width="100%" height="100%" style="object-fit: cover;"></div>
     <div class="store-name">NIDALOP STORE</div>
 </div>
 
-<div class="stats-container clayza">
+<div class="stats-container">
     <div class="stat-box"><div class="stat-val" id="totalProd">0</div><div class="stat-label">Total</div></div>
     <div class="stat-box"><div class="stat-val" id="totalStok">0</div><div class="stat-label">Ready</div></div>
     <div class="stat-box"><div class="stat-val" id="totalTersedia">0</div><div class="stat-label">Produk</div></div>
@@ -102,7 +108,7 @@
 <div id="productList"></div>
 
 <div id="paymentModal" class="modal">
-    <div class="modal-content clayza">
+    <div class="modal-content">
         <div id="step-input">
             <h2 id="payTitle" style="color:var(--primary-red); margin-bottom:5px;">Produk</h2>
             <p style="font-size:12px; color:#8e959e; margin-bottom:20px;">Lengkapi data di bawah ini</p>
@@ -114,7 +120,6 @@
 
         <div id="step-qris" style="display:none; text-align:center;">
             <h3 style="color:var(--primary-red); margin-bottom:4px;">SCAN QRIS</h3>
-            
             <div class="qr-info-grid">
                 <div class="qr-info-card">
                     <div class="qr-info-label">ID QRIS</div>
@@ -125,8 +130,7 @@
                     <div class="qr-info-value" id="qrExpiredInfo" style="color:#10b981;">15:00</div>
                 </div>
             </div>
-
-            <div class="qris-box clayza" id="qrisWrapper">
+            <div class="qris-box" id="qrisWrapper">
                 <div class="qr-loading" id="qrLoading"><div class="spinner" style="width:30px; height:30px; border-top-color:red;"></div></div>
                 <img id="qrisImg" src="" alt="QRIS" style="display:none;" onload="onQrLoaded()">
             </div>
@@ -141,21 +145,16 @@
         <div id="step-success" style="display:none; text-align:center;">
             <div style="font-size:40px; margin-bottom:10px;">✅</div>
             <h3 style="color:var(--success-green); margin-bottom:5px;">PEMBAYARAN LUNAS!</h3>
-            <div style="font-size:11px; color:#8e959e; margin-bottom:15px; line-height:1.6; background:#0b0d0f; padding:10px; border-radius:10px; border:1px solid #242a32; text-align:left;">
-                <div>ID TRX: <b id="successTrxId" style="color:white; font-family:monospace;">—</b></div>
-                <div>EMAIL: <b id="successEmail" style="color:white;">—</b></div>
-            </div>
             <div class="data-box" id="finalData"></div>
             <button class="btn-buy" style="background:var(--success-green); margin-top:15px;" onclick="copyData('finalData')">SALIN AKUN</button>
             <button class="btn-buy" style="background:#242a32; margin-top:8px;" onclick="location.reload()">TUTUP</button>
         </div>
-
         <button id="btnClose" onclick="closeModal()" style="background:none; border:none; color:#888; width:100%; margin-top:20px; cursor:pointer; font-size:11px; font-weight:bold;">KEMBALI</button>
     </div>
 </div>
 
 <div id="invoiceModal" class="modal">
-    <div class="modal-content clayza">
+    <div class="modal-content">
         <h2 style="color:var(--primary-red); margin-bottom:15px;">Cek Pesanan</h2>
         <input type="text" id="inputTrxId" class="sheet-input" placeholder="Masukkan ID Transaksi">
         <button class="btn-buy" onclick="cariInvoice()">CARI</button>
@@ -186,12 +185,25 @@
             let tP = 0, tS = 0, tT = 0;
             Object.keys(dataP).forEach(id => {
                 tP++; const list = dataS[id] ? Object.keys(dataS[id]) : []; const jml = list.length;
+                const terjual = dataP[id].terjual || 0;
                 if (jml > 0) { tT++; tS += jml; }
-                produkCache[id] = { nama: dataP[id].nama, harga: dataP[id].harga, stok: dataS[id] || {} };
+                produkCache[id] = { nama: dataP[id].nama, harga: dataP[id].harga, stok: dataS[id] || {}, logo: dataP[id].logo };
                 const hrg = "Rp " + parseInt(String(dataP[id].harga).replace(/\D/g, '')).toLocaleString('id-ID');
-                const card = document.createElement('div'); card.className = 'card';
-                card.innerHTML = `<div class="stock-tag ${jml === 0 ? 'tag-red' : 'tag-green'}">${jml === 0 ? 'Habis' : jml + ' Ready'}</div><div class="card-title">${dataP[id].nama}</div><div class="price">${hrg}</div>`;
+                
+                const card = document.createElement('div'); 
+                card.className = 'card';
                 card.onclick = () => jml === 0 ? showToast('Stok habis!') : openPayment(id);
+                card.innerHTML = `
+                    <div class="prod-logo-container">
+                        <img src="${dataP[id].logo || 'https://via.placeholder.com/55'}" alt="logo">
+                    </div>
+                    <div class="prod-details">
+                        <div class="card-title">${dataP[id].nama}</div>
+                        <div class="price">${hrg}</div>
+                        <div class="terjual-info">🔥 ${terjual} Terjual</div>
+                    </div>
+                    <div class="stock-tag ${jml === 0 ? 'tag-red' : 'tag-green'}">${jml === 0 ? 'Habis' : jml + ' Ready'}</div>
+                `;
                 container.appendChild(card);
             });
             document.getElementById('totalProd').innerText = tP; document.getElementById('totalStok').innerText = tS; document.getElementById('totalTersedia').innerText = tT;
@@ -215,13 +227,8 @@
             const json = await res.json();
             const { qr_string, transactionId, totalAmount, uniqueNominal } = json.data;
             cashifyTransactionId = transactionId;
-
-            // Isi Info QRIS
             document.getElementById('qrTransactionIdDisplay').innerText = transactionId.slice(0, 10) + "...";
-            
-            // Start Countdown 15 Menit
             startCountdown(15 * 60);
-
             document.getElementById('step-input').style.display = 'none'; document.getElementById('step-qris').style.display = 'block';
             document.getElementById('qrisImg').src = `https://larabert-qrgen.hf.space/v1/create-qr-code?size=500x500&style=2&color=000000&data=${encodeURIComponent(qr_string)}`;
             document.getElementById('totalAmountDisplay').innerText = "Rp " + totalAmount.toLocaleString('id-ID');
@@ -233,23 +240,10 @@
     function startCountdown(duration) {
         if (countdownInterval) clearInterval(countdownInterval);
         let timer = duration, minutes, seconds;
-        const display = document.getElementById('qrExpiredInfo');
-        const btn = document.getElementById('statusBayarBtn');
-
         countdownInterval = setInterval(() => {
-            minutes = parseInt(timer / 60, 10);
-            seconds = parseInt(timer % 60, 10);
-            minutes = minutes < 10 ? "0" + minutes : minutes;
-            seconds = seconds < 10 ? "0" + seconds : seconds;
-            display.innerText = minutes + ":" + seconds;
-
-            if (--timer < 0) {
-                clearInterval(countdownInterval);
-                display.innerText = "EXPIRED";
-                display.style.color = "red";
-                btn.innerHTML = "WAKTU HABIS - SILAKAN ULANG";
-                btn.style.background = "#555";
-            }
+            minutes = parseInt(timer / 60, 10); seconds = parseInt(timer % 60, 10);
+            document.getElementById('qrExpiredInfo').innerText = (minutes < 10 ? "0" + minutes : minutes) + ":" + (seconds < 10 ? "0" + seconds : seconds);
+            if (--timer < 0) { clearInterval(countdownInterval); document.getElementById('qrExpiredInfo').innerText = "EXPIRED"; }
         }, 1000);
     }
 
@@ -260,54 +254,33 @@
         pollingInterval = setInterval(async () => {
             try {
                 const res = await fetch('/api/check-status', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ transactionId: cashifyTransactionId }) });
-                const json = await res.json(); if (json.data?.status?.toLowerCase() === 'paid') { 
-                    clearInterval(pollingInterval); 
-                    clearInterval(countdownInterval);
-                    prosesLunas(); 
-                }
+                const json = await res.json(); if (json.data?.status?.toLowerCase() === 'paid') { clearInterval(pollingInterval); clearInterval(countdownInterval); prosesLunas(); }
             } catch (e) {}
         }, 5000);
     }
 
     async function prosesLunas() {
         const sekarang = new Date();
-        const tgl = String(sekarang.getDate()).padStart(2, '0');
-        const thn = sekarang.getFullYear();
-        const kodeAcak = Math.floor(100 + Math.random() * 899);
-        const urutan = Math.floor(10 + Math.random() * 89);
-        
-        const trxId = `TRX-${tgl}${thn}${kodeAcak}17${urutan}`;
-        const emailUser = document.getElementById('buyerEmail').value;
-
+        const trxId = `TRX-${Math.floor(100000 + Math.random() * 899999)}`;
         try {
             await fetch(`${BASE_URL}stok_akun/${selectedProdId}/${selectedAkunId}.json`, { method: 'DELETE' });
+            // Update terjual
+            const currentTerjual = produkCache[selectedProdId].terjual || 0;
+            await fetch(`${BASE_URL}produk/${selectedProdId}.json`, { method: 'PATCH', body: JSON.stringify({ terjual: currentTerjual + 1 }) });
+            
             await fetch(`${BASE_URL}transaksi/${trxId}.json`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    produk: document.getElementById('payTitle').innerText,
-                    data: selectedDataAkun,
-                    nama: document.getElementById('buyerName').value,
-                    email: emailUser,
-                    tanggal: sekarang.toLocaleString('id-ID'),
-                    id_trx: trxId
-                })
+                body: JSON.stringify({ produk: document.getElementById('payTitle').innerText, data: selectedDataAkun, nama: document.getElementById('buyerName').value, email: document.getElementById('buyerEmail').value, tanggal: sekarang.toLocaleString('id-ID'), id_trx: trxId })
             });
-
             document.getElementById('step-qris').style.display = 'none';
             document.getElementById('step-success').style.display = 'block';
-            document.getElementById('successTrxId').innerText = trxId;
-            document.getElementById('successEmail').innerText = emailUser;
             document.getElementById('finalData').innerText = selectedDataAkun;
             showToast("Pembayaran Berhasil!", "success");
         } catch (e) { showToast("Gagal Simpan Data!"); }
     }
 
-    function closeModal() { 
-        if (pollingInterval) clearInterval(pollingInterval); 
-        if (countdownInterval) clearInterval(countdownInterval);
-        document.getElementById('paymentModal').style.display = 'none'; 
-    }
+    function closeModal() { if (pollingInterval) clearInterval(pollingInterval); if (countdownInterval) clearInterval(countdownInterval); document.getElementById('paymentModal').style.display = 'none'; }
     function closeInvoiceModal() { document.getElementById('invoiceModal').style.display = 'none'; }
     function openInvoiceModal() { document.getElementById('invoiceModal').style.display = 'block'; }
 
@@ -320,10 +293,7 @@
         r.innerHTML = `<div class="data-box" id="invData">${d.data}</div><button class="btn-buy" style="background:var(--success-green); margin-top:10px; padding:10px;" onclick="copyData('invData')">SALIN DATA</button>`;
     }
 
-    function copyData(elementId) {
-        const txt = document.getElementById(elementId).innerText;
-        navigator.clipboard.writeText(txt).then(() => showToast("Disalin!", "success"));
-    }
+    function copyData(elementId) { const txt = document.getElementById(elementId).innerText; navigator.clipboard.writeText(txt).then(() => showToast("Disalin!", "success")); }
 
     fetchProducts();
 </script>
