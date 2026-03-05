@@ -192,7 +192,7 @@
                 tP++; const list = dataS[id] ? Object.keys(dataS[id]) : []; const jml = list.length;
                 const terjual = dataP[id].terjual || 0;
                 if (jml > 0) { tT++; tS += jml; }
-                produkCache[id] = { nama: dataP[id].nama, harga: dataP[id].harga, stok: dataS[id] || {}, logo: dataP[id].logo };
+                produkCache[id] = { nama: dataP[id].nama, harga: dataP[id].harga, stok: dataS[id] || {}, logo: dataP[id].logo, terjual: terjual };
                 const hrg = "Rp " + parseInt(String(dataP[id].harga).replace(/\D/g, '')).toLocaleString('id-ID');
                 const card = document.createElement('div'); card.className = 'card';
                 card.onclick = () => jml === 0 ? showToast('Stok habis!') : openPayment(id);
@@ -277,13 +277,20 @@
             await fetch(`${BASE_URL}transaksi/${trxId}.json`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ produk: document.getElementById('payTitle').innerText, data: selectedDataAkun, nama: document.getElementById('buyerName').value, email: emailUser, tanggal: sekarang.toLocaleString('id-ID'), id_trx: trxId })
+                body: JSON.stringify({ 
+                    produk: document.getElementById('payTitle').innerText, 
+                    data: selectedDataAkun, 
+                    nama: document.getElementById('buyerName').value, 
+                    email: emailUser, 
+                    harga: hargaFix, // <--- INI SUDAH SAYA TAMBAHKAN BIAR NYAMBUNG KE KEUANGAN
+                    tanggal: sekarang.toLocaleString('id-ID'), 
+                    id_trx: trxId 
+                })
             });
 
             document.getElementById('step-qris').style.display = 'none';
             document.getElementById('step-success').style.display = 'block';
             
-            // SET DATA KE TAMPILAN BARU
             document.getElementById('successTrxId').innerText = trxId;
             document.getElementById('successEmail').innerText = emailUser;
 
