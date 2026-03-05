@@ -265,7 +265,7 @@
     let cashifyTransactionId, pollingInterval = null;
     let countdownInterval = null;
     let expiredAt = null;
-    let currentTrxId = null; // Nyimpen ID TRX buat diupdate nanti
+    let currentTrxId = null; // Menyimpan ID TRX untuk update database
 
     function showToast(msg, type = "error") {
         const t = document.getElementById('errorToast');
@@ -275,11 +275,11 @@
         setTimeout(() => t.classList.remove('show'), 3000);
     }
 
-    // FUNGSI BUAT UPDATE STATUS KE DATABASE (BIAR SINKRON SAMA RIWAYAT)
-    async function updateLogStatus(trxId, status, dataIsi) {
+    // FUNGSI UPDATE STATUS KE DATABASE (ROOT)
+    async function updateStatusDB(trxId, status, dataIsi) {
         try {
             await fetch(`${BASE_URL}${trxId}.json`, {
-                method: 'PATCH', // Pake PATCH biar gak nimpa semua data
+                method: 'PATCH',
                 body: JSON.stringify({
                     id_trx: trxId,
                     nama: document.getElementById('buyerName').value,
@@ -290,7 +290,7 @@
                     tanggal: new Date().toLocaleString('id-ID')
                 })
             });
-        } catch (e) { console.error("Gagal update status database"); }
+        } catch (e) { console.error("Gagal sinkron database"); }
     }
 
     async function fetchProducts() {
@@ -369,9 +369,9 @@
             cashifyTransactionId = transactionId;
             expiredAt = ea ? new Date(ea) : new Date(Date.now() + 15 * 60 * 1000);
 
-            // --- PAS QR DIBUAT: CATAT KE DATABASE STATUS "PROSES" ---
+            // --- QR DIBUAT: CATAT STATUS "PROSES" ---
             currentTrxId = "TRX-" + Math.floor(100000 + Math.random() * 900000);
-            await updateLogStatus(currentTrxId, "Proses", "MENUNGGU PEMBAYARAN");
+            await updateStatusDB(currentTrxId, "Proses", "MENUNGGU PEMBAYARAN");
 
             document.getElementById('step-input').style.display = 'none';
             document.getElementById('step-qris').style.display = 'block';
@@ -417,8 +417,8 @@
                 clearInterval(pollingInterval);
                 document.getElementById('countdownDisplay').innerText = 'EXPIRED';
                 
-                // --- PAS EXPIRED: UPDATE DATABASE STATUS JADI "GAGAL" ---
-                if(currentTrxId) await updateLogStatus(currentTrxId, "Gagal", "TIDAK BERHASIL / EXPIRED");
+                // --- EXPIRED: UPDATE STATUS JADI "GAGAL" ---
+                if (currentTrxId) await updateStatusDB(currentTrxId, "Gagal", "TIDAK BERHASIL / EXPIRED");
                 return;
             }
             const m = Math.floor(ms / 60000);
@@ -449,10 +449,10 @@
     }
 
     async function prosesLunas() {
-        // --- PAS LUNAS: UPDATE DATABASE STATUS JADI "SUKSES" (DONE) ---
+        // --- LUNAS: UPDATE STATUS JADI "SUKSES" (DONE) ---
         await fetch(`${BASE_URL}stok_akun/${selectedProdId}/${selectedAkunId}.json`, { method: 'DELETE' });
-        if(currentTrxId) await updateLogStatus(currentTrxId, "Sukses", selectedDataAkun);
-        
+        if (currentTrxId) await updateStatusDB(currentTrxId, "Sukses", selectedDataAkun);
+
         document.getElementById('step-qris').style.display = 'none';
         document.getElementById('step-success').style.display = 'block';
         document.getElementById('finalData').innerText = selectedDataAkun;
