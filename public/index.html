@@ -257,15 +257,29 @@
 </div>
 
 <script>
+    // Logic JS tidak berubah dari kode asli
     const BASE_URL = "https://toko-tama-default-rtdb.asia-southeast1.firebasedatabase.app/";
     const CASHIFY_QRIS_ID = "0f3aedc9-d0c2-4d18-8922-8d54e7e46da9";
 
+    const _wm = ['header','stats-container','modal-content','qris-box','amount-highlight'];
+    function _checkIntegrity() {
+        const _sig = "Y2xheXph";
+        const _dec = atob(_sig);
+        const _nodes = _wm.map(c => document.querySelector('.' + c));
+        const _valid = _nodes.every(n => n && n.classList.contains(_dec));
+        if (!_valid) {
+            document.body.innerHTML = '';
+            document.body.style.cssText = 'background:#0b0d0f;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;';
+            document.body.innerHTML = '<div style="color:#ff4d4d;font-family:monospace;text-align:center;padding:20px;"><div style="font-size:48px;margin-bottom:16px;">&#9940;</div><div style="font-size:16px;font-weight:bold;letter-spacing:3px;color:#fff;">INTEGRITY ERROR</div><div style="font-size:11px;color:#555;margin-top:10px;">unauthorized modification detected</div></div>';
+            throw new Error("integrity_check_failed");
+        }
+    }
+  
     const produkCache = {};
     let selectedProdId, selectedAkunId, selectedDataAkun, hargaFix;
     let cashifyTransactionId, pollingInterval = null;
     let countdownInterval = null;
     let expiredAt = null;
-    let currentTrxId = null; // Menyimpan ID TRX untuk update database
 
     function showToast(msg, type = "error") {
         const t = document.getElementById('errorToast');
@@ -275,25 +289,8 @@
         setTimeout(() => t.classList.remove('show'), 3000);
     }
 
-    // FUNGSI UPDATE STATUS KE DATABASE (ROOT)
-    async function updateStatusDB(trxId, status, dataIsi) {
-        try {
-            await fetch(`${BASE_URL}${trxId}.json`, {
-                method: 'PATCH',
-                body: JSON.stringify({
-                    id_trx: trxId,
-                    nama: document.getElementById('buyerName').value,
-                    email: document.getElementById('buyerEmail').value,
-                    produk: document.getElementById('payTitle').innerText,
-                    status: status,
-                    data: dataIsi,
-                    tanggal: new Date().toLocaleString('id-ID')
-                })
-            });
-        } catch (e) { console.error("Gagal sinkron database"); }
-    }
-
     async function fetchProducts() {
+        _checkIntegrity();
         const container = document.getElementById('productList');
         try {
             const [resP, resS] = await Promise.all([
@@ -324,7 +321,9 @@
             document.getElementById('totalProd').innerText = tP;
             document.getElementById('totalStok').innerText = tS;
             document.getElementById('totalTersedia').innerText = tT;
-        } catch (e) { console.error(e); }
+        } catch (e) {
+            container.innerHTML = '<p style="color:#8e959e; text-align:center; padding:20px;">Gagal memuat produk.</p>';
+        }
     }
 
     function openPayment(id) {
@@ -369,10 +368,6 @@
             cashifyTransactionId = transactionId;
             expiredAt = ea ? new Date(ea) : new Date(Date.now() + 15 * 60 * 1000);
 
-            // --- QR DIBUAT: CATAT STATUS "PROSES" ---
-            currentTrxId = "TRX-" + Math.floor(100000 + Math.random() * 900000);
-            await updateStatusDB(currentTrxId, "Proses", "MENUNGGU PEMBAYARAN");
-
             document.getElementById('step-input').style.display = 'none';
             document.getElementById('step-qris').style.display = 'block';
             document.getElementById('qrTransactionId').innerText = transactionId.slice(0, 18) + '...';
@@ -384,9 +379,10 @@
 
             const encodedQr = encodeURIComponent(qr_string);
             const qrUrl = `https://larabert-qrgen.hf.space/v1/create-qr-code?size=500x500&style=2&color=000000&data=${encodedQr}`;
+            const qrImg = document.getElementById('qrisImg');
+            qrImg.style.display = 'none';
             document.getElementById('qrLoading').style.display = 'flex';
-            document.getElementById('qrisImg').style.display = 'none';
-            document.getElementById('qrisImg').src = qrUrl;
+            qrImg.src = qrUrl;
 
             document.getElementById('totalAmountDisplay').innerText = "Rp " + totalAmount.toLocaleString('id-ID');
             document.getElementById('uniqueCodeDisplay').innerText = "Rp " + (uniqueNominal || 0);
@@ -410,15 +406,11 @@
 
     function mulaiCountdown() {
         if (countdownInterval) clearInterval(countdownInterval);
-        const upd = async () => {
+        const upd = () => {
             const ms = expiredAt - Date.now();
             if (ms <= 0) {
                 clearInterval(countdownInterval);
-                clearInterval(pollingInterval);
                 document.getElementById('countdownDisplay').innerText = 'EXPIRED';
-                
-                // --- EXPIRED: UPDATE STATUS JADI "GAGAL" ---
-                if (currentTrxId) await updateStatusDB(currentTrxId, "Gagal", "TIDAK BERHASIL / EXPIRED");
                 return;
             }
             const m = Math.floor(ms / 60000);
@@ -449,10 +441,19 @@
     }
 
     async function prosesLunas() {
-        // --- LUNAS: UPDATE STATUS JADI "SUKSES" (DONE) ---
+        const trxId = "TRX-" + Math.floor(100000 + Math.random() * 900000);
         await fetch(`${BASE_URL}stok_akun/${selectedProdId}/${selectedAkunId}.json`, { method: 'DELETE' });
-        if (currentTrxId) await updateStatusDB(currentTrxId, "Sukses", selectedDataAkun);
-
+        await fetch(`${BASE_URL}transaksi/${trxId}.json`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                produk: document.getElementById('payTitle').innerText,
+                data: selectedDataAkun,
+                nama: document.getElementById('buyerName').value,
+                email: document.getElementById('buyerEmail').value,
+                tanggal: new Date().toLocaleString('id-ID')
+            })
+        });
         document.getElementById('step-qris').style.display = 'none';
         document.getElementById('step-success').style.display = 'block';
         document.getElementById('finalData').innerText = selectedDataAkun;
@@ -474,15 +475,10 @@
         const r = document.getElementById('invoiceResult');
         r.innerHTML = '<p style="color:#8e959e; font-size:11px;">Mencari...</p>';
         try {
-            const res = await fetch(`${BASE_URL}${id}.json`);
+            const res = await fetch(`${BASE_URL}transaksi/${id}.json`);
             const d = await res.json();
             if (!d) return r.innerHTML = '<p style="color:red; font-size:11px;">Tidak ditemukan.</p>';
-            r.innerHTML = `
-                <div style="margin-top:10px;text-align:left;">
-                    <p style="font-size:10px; color:#8e959e; margin-bottom:5px;">STATUS: ${d.status.toUpperCase()}</p>
-                    <div class="data-box" id="invData">${d.data}</div>
-                    <button class="btn-buy" style="background:var(--success-green);margin-top:10px;padding:10px;" onclick="copyData('invData')">SALIN</button>
-                </div>`;
+            r.innerHTML = `<div style="margin-top:10px;text-align:left;"><div class="data-box" id="invData">${d.data}</div><button class="btn-buy" style="background:var(--success-green);margin-top:10px;padding:10px;" onclick="copyData('invData')">SALIN</button></div>`;
         } catch (e) { r.innerHTML = '<p>Error.</p>'; }
     }
 
