@@ -78,11 +78,10 @@
         .modal { display: none; position: fixed; z-index: 99999; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); }
         .modal-content { position: fixed; bottom: 0; width: 100%; max-width: 500px; background: #161a1e; padding: 25px 20px 35px; border-radius: 30px 30px 0 0; border-top: 2px solid var(--primary-red); left: 50%; transform: translateX(-50%); max-height: 90vh; overflow-y: auto; }
         
-        /* FIX QRIS LAYOUT TABLE */
         .qr-info-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; border: 1px solid #242a32; border-radius: 12px; overflow: hidden; }
         .qr-info-table td { padding: 10px; border: 1px solid #242a32; text-align: center; background: #0b0d0f; }
         .qr-info-label { font-size: 11px; color: #8e959e; font-weight: bold; text-transform: uppercase; }
-        .qr-info-value { font-size: 14px; font-weight: 800; }
+        .qr-info-value { font-size: 14px; font-weight: 800; word-break: break-all; }
 
         .sheet-input { width: 100%; background: #0b0d0f; border: 1.5px solid #242a32; padding: 14px; color: white; border-radius: 14px; outline: none; margin-bottom: 12px; font-size: 14px; }
         .btn-buy { background: var(--primary-red); color: white; border: none; padding: 16px; width: 100%; border-radius: 14px; font-weight: bold; cursor: pointer; font-size: 14px; }
@@ -155,7 +154,7 @@
 <div id="invoiceModal" class="modal">
     <div class="modal-content">
         <h2 style="color:var(--primary-red); margin-bottom:15px;">Cek Pesanan</h2>
-        <input type="text" id="inputTrxId" class="sheet-input" placeholder="Masukkan ID Transaksi (Contoh: TRX-123456)">
+        <input type="text" id="inputTrxId" class="sheet-input" placeholder="Masukkan ID Transaksi">
         <button class="btn-buy" onclick="cariInvoice()">CARI</button>
         <div id="invoiceResult"></div>
         <button onclick="closeInvoiceModal()" style="background:none; border:none; color:#8e959e; width:100%; margin-top:15px; cursor:pointer; font-size:12px;">TUTUP</button>
@@ -220,39 +219,64 @@
         const btn = document.getElementById('btnLanjutkan'); btn.disabled = true; btn.innerHTML = 'Memproses...';
         try {
             const res = await fetch('/api/generate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: CASHIFY_QRIS_ID, amount: hargaFix, useUniqueCode: true }) });
-            const json = await res.json(); const { qr_string, transactionId, totalAmount } = json.data;
+            const json = await res.json();
+            const { qr_string, transactionId, totalAmount } = json.data;
+            
             document.getElementById('qrisImg').src = `https://larabert-qrgen.hf.space/v1/create-qr-code?data=${encodeURIComponent(qr_string)}`;
             document.getElementById('totalAmountDisplay').innerText = "Rp " + totalAmount.toLocaleString('id-ID');
-            document.getElementById('qrTransactionIdDisplay').innerText = transactionId.slice(0, 15) + "...";
-            document.getElementById('step-input').style.display = 'none'; document.getElementById('step-qris').style.display = 'block';
+            document.getElementById('qrTransactionIdDisplay').innerText = transactionId; // ID MUNCUL DISINI
+            document.getElementById('step-input').style.display = 'none'; 
+            document.getElementById('step-qris').style.display = 'block';
             
             cashifyTransactionId = transactionId;
-            startCountdown(15 * 60); // <--- FIX: NYALAIN MENITNYA DISINI
+            startCountdown(15 * 60); // NYALAIN HITUNG MUNDUR
             mulaiPolling();
         } catch(err) { showToast("Gagal!"); btn.disabled = false; btn.innerHTML = 'Lanjutkan'; }
     }
 
     function startCountdown(duration) {
+        // BERSIHKAN DULU KALAU ADA HITUNGAN SEBELUMNYA
         if (countdownInterval) clearInterval(countdownInterval);
+        
         let timer = duration, minutes, seconds;
+        const display = document.getElementById('qrExpiredInfo');
+        
         countdownInterval = setInterval(() => {
             minutes = parseInt(timer / 60, 10);
             seconds = parseInt(timer % 60, 10);
+
             minutes = minutes < 10 ? "0" + minutes : minutes;
             seconds = seconds < 10 ? "0" + seconds : seconds;
-            document.getElementById('qrExpiredInfo').innerText = minutes + ":" + seconds;
-            if (--timer < 0) { clearInterval(countdownInterval); document.getElementById('qrExpiredInfo').innerText = "EXPIRED"; }
+
+            display.innerText = minutes + ":" + seconds;
+
+            if (--timer < 0) {
+                clearInterval(countdownInterval);
+                display.innerText = "EXPIRED";
+            }
         }, 1000);
     }
 
-    function mulaiPolling() { pollingInterval = setInterval(async () => { const res = await fetch('/api/check-status', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ transactionId: cashifyTransactionId }) }); const json = await res.json(); if (json.data?.status === 'paid') { clearInterval(pollingInterval); clearInterval(countdownInterval); prosesLunas(); } }, 5000); }
-    
+    function mulaiPolling() { 
+        if (pollingInterval) clearInterval(pollingInterval);
+        pollingInterval = setInterval(async () => { 
+            const res = await fetch('/api/check-status', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ transactionId: cashifyTransactionId }) }); 
+            const json = await res.json(); 
+            if (json.data?.status === 'paid') { 
+                clearInterval(pollingInterval); 
+                clearInterval(countdownInterval); 
+                prosesLunas(); 
+            } 
+        }, 5000); 
+    }
+
     async function prosesLunas() { 
         const trxId = `TRX-${Math.floor(100000 + Math.random() * 900000)}`; const emailU = document.getElementById('buyerEmail').value;
         await fetch(`${BASE_URL}stok_akun/${selectedProdId}/${selectedAkunId}.json`, { method: 'DELETE' });
         await fetch(`${BASE_URL}transaksi/${trxId}.json`, { method: 'PUT', body: JSON.stringify({ data: selectedDataAkun, email: emailU, id_trx: trxId }) });
         document.getElementById('successTrxId').innerText = trxId; document.getElementById('successEmail').innerText = emailU; document.getElementById('finalData').innerText = selectedDataAkun;
         document.getElementById('step-qris').style.display = 'none'; document.getElementById('step-success').style.display = 'block';
+        showToast("Berhasil!", true);
     }
 
     async function cariInvoice() {
@@ -266,7 +290,7 @@
     function closeModal() { clearInterval(pollingInterval); clearInterval(countdownInterval); document.getElementById('paymentModal').style.display = 'none'; document.getElementById('step-input').style.display='block'; document.getElementById('step-qris').style.display='none'; }
     function openInvoiceModal() { document.getElementById('invoiceModal').style.display = 'block'; }
     function closeInvoiceModal() { document.getElementById('invoiceModal').style.display = 'none'; }
-    function showToast(m) { const t = document.getElementById('errorToast'); t.innerText = m; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3000); }
+    function showToast(m, s=false) { const t = document.getElementById('errorToast'); t.innerText = m; t.className = s ? "toast success show" : "toast show"; setTimeout(() => t.classList.remove('show'), 3000); }
     function copyData(id) { navigator.clipboard.writeText(document.getElementById(id).innerText); showToast("Berhasil disalin!"); }
 
     initWeb();
