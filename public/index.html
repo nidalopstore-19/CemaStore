@@ -26,7 +26,9 @@
             position: absolute; top: -8px; left: 50%; width: 16px; height: 16px; 
             background-color: var(--primary-red, #ffffff); border-radius: 50%; transform: translateX(-50%);
             box-shadow: 0 0 15px var(--primary-red, #ffffff), 0 0 30px var(--primary-red, #ffffff);
+            transition: background-color 0.5s ease, box-shadow 0.5s ease;
         }
+        .loader-text { margin-top: 35px; color: var(--primary-red, #ffffff); font-size: 11px; font-weight: 900; letter-spacing: 5px; text-transform: uppercase; opacity: 0.8; transition: color 0.5s ease; text-align: center; }
         @keyframes orbit-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
         /* --- 2. LAYOUT NORMAL --- */
@@ -41,32 +43,62 @@
             color: #ffffff; 
             max-width: 500px; 
             margin: auto; 
+            overflow-x: hidden;
             min-height: 100vh;
             padding: 25px 15px;
         }
 
         #liveClock { font-size: 10.5px; color: #8e959e; font-weight: 700; letter-spacing: 1px; margin-top: 8px; text-transform: uppercase; text-align: center; }
-        .header { text-align: center; margin-bottom: 25px; }
+
+        /* --- FIX TOAST (WARNA DISESUAIKAN) --- */
+        .toast { 
+            position: fixed; top: -100px; left: 50%; transform: translateX(-50%); 
+            background: #ff4d4d; /* WARNA MERAH UNTUK NOTIF BIASA / HABIS */
+            color: white; padding: 12px 20px; 
+            border-radius: 12px; font-size: 13px; font-weight: bold; z-index: 10000; 
+            transition: 0.5s; width: 90%; max-width: 400px; text-align: center; 
+            opacity: 0; pointer-events: none;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+        }
+        .toast.show { top: 20px; opacity: 1; pointer-events: auto; }
+        .toast.success { background: var(--success-green); } /* TETAP HIJAU UNTUK LUNAS */
+
+        .header { text-align: center; margin-bottom: 25px; padding-top: 10px; }
         .profile-img { width: 85px; height: 85px; border-radius: 50%; border: 2px solid var(--primary-red); margin: 0 auto 12px; overflow: hidden; background: #000; }
-        .store-name { font-size: 1.4rem; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; }
-
-        /* --- INFO TABLE QRIS RAPI --- */
-        .qr-info-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); }
-        .qr-info-table td { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); text-align: left; background: #0b0d0f; }
-        .qr-info-label { font-size: 10px; color: #8e959e; font-weight: bold; text-transform: uppercase; margin-bottom: 2px; }
-        .qr-info-value { font-size: 13px; font-weight: 700; color: #fff; }
-
-        .toast { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); background: var(--primary-red); color: white; padding: 12px 20px; border-radius: 12px; font-size: 13px; font-weight: bold; z-index: 10000; transition: 0.5s; width: 90%; text-align: center; opacity: 0; }
-        .toast.show { top: 20px; opacity: 1; }
-
-        .btn-buy { background: var(--primary-red); color: white; border: none; padding: 16px; width: 100%; border-radius: 14px; font-weight: bold; cursor: pointer; }
-        .sheet-input { width: 100%; background: #0b0d0f; border: 1.5px solid #242a32; padding: 14px; color: white; border-radius: 14px; margin-bottom: 12px; }
+        .store-name { font-size: 1.4rem; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 2px; }
         
+        .stats-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
+        .stat-box { background: var(--card-bg); padding: 15px 5px; border-radius: 18px; text-align: center; border: 1px solid rgba(255,255,255,0.05); backdrop-filter: blur(10px); }
+        .stat-val { font-size: 20px; font-weight: 800; color: var(--primary-red); }
+        .stat-label { font-size: 10px; color: #8e959e; text-transform: uppercase; margin-top: 4px; font-weight: bold; }
+        
+        .btn-cek-nav { background: var(--card-bg); border: 1px solid rgba(255,255,255,0.1); color: var(--primary-red); padding: 14px; border-radius: 15px; width: 100%; margin-bottom: 20px; font-size: 12px; font-weight: bold; cursor: pointer; backdrop-filter: blur(10px); }
+
+        #productList { display: flex; flex-direction: column; gap: 12px; margin-bottom: 50px; }
+
+        .card { background: var(--card-bg); border: 1px solid rgba(255,255,255,0.05); border-radius: 18px; padding: 15px; position: relative; cursor: pointer; backdrop-filter: blur(10px); display: flex; align-items: center; gap: 15px; transition: 0.2s; }
+        .card:active { transform: scale(0.98); }
+        .prod-logo-container { width: 55px; height: 55px; border-radius: 14px; overflow: hidden; border: 1px solid #333; flex-shrink: 0; background: #000; }
+        .prod-logo-container img { width: 100%; height: 100%; object-fit: cover; }
+        .card-title { font-size: 15px; font-weight: 600; color: #fff; }
+        .price { color: var(--primary-red); font-size: 17px; font-weight: 800; }
+        
+        .stock-tag { position: absolute; top: 15px; right: 15px; font-size: 9px; font-weight: 800; padding: 3px 8px; border-radius: 8px; text-transform: uppercase; }
+        .tag-red { background: rgba(255, 0, 0, 0.1); color: #ff4d4d; border: 1px solid #ff4d4d; }
+        .tag-green { background: rgba(16, 185, 129, 0.1); color: var(--success-green); border: 1px solid var(--success-green); }
+
+        /* MODALS */
         .modal { display: none; position: fixed; z-index: 99999; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); }
-        .modal-content { position: fixed; bottom: 0; width: 100%; max-width: 500px; background: #161a1e; padding: 25px 20px; border-radius: 30px 30px 0 0; border-top: 2px solid var(--primary-red); left: 50%; transform: translateX(-50%); max-height: 90vh; overflow-y: auto; }
+        .modal-content { position: fixed; bottom: 0; width: 100%; max-width: 500px; background: #161a1e; padding: 25px 20px 35px; border-radius: 30px 30px 0 0; border-top: 2px solid var(--primary-red); left: 50%; transform: translateX(-50%); max-height: 90vh; overflow-y: auto; }
         
-        #productList { display: flex; flex-direction: column; gap: 12px; }
-        .card { background: var(--card-bg); border-radius: 18px; padding: 15px; display: flex; align-items: center; gap: 15px; border: 1px solid rgba(255,255,255,0.05); }
+        .qr-info-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; border: 1px solid #242a32; border-radius: 12px; overflow: hidden; }
+        .qr-info-table td { padding: 10px; border: 1px solid #242a32; text-align: left; background: #0b0d0f; }
+        .qr-label { font-size: 10px; color: #8e959e; font-weight: bold; text-transform: uppercase; margin-bottom: 2px; }
+        .qr-value { font-size: 13px; font-weight: 700; color: #fff; }
+
+        .sheet-input { width: 100%; background: #0b0d0f; border: 1.5px solid #242a32; padding: 14px; color: white; border-radius: 14px; outline: none; margin-bottom: 12px; font-size: 14px; }
+        .btn-buy { background: var(--primary-red); color: white; border: none; padding: 16px; width: 100%; border-radius: 14px; font-weight: bold; cursor: pointer; font-size: 14px; }
+        .data-box { background: #000; border: 1.5px dashed var(--success-green); padding: 15px; border-radius: 12px; margin-top: 15px; color: var(--success-green); font-family: monospace; font-size: 14px; word-break: break-all; text-align: left; }
     </style>
 </head>
 <body>
@@ -76,6 +108,7 @@
         <div class="orbit-ring"></div>
         <div class="orbit-spinner"><div class="orbit-ball"></div></div>
     </div>
+    <div class="loader-text" id="loaderTextDisplay">LOADING...</div>
 </div>
 
 <div id="errorToast" class="toast">Pesan</div>
@@ -86,53 +119,65 @@
     <div id="liveClock">MEMUAT WAKTU...</div>
 </div>
 
+<div class="stats-container">
+    <div class="stat-box"><div class="stat-val" id="totalProd">0</div><div class="stat-label">Total</div></div>
+    <div class="stat-box"><div class="stat-val" id="totalStok">0</div><div class="stat-label">Ready</div></div>
+    <div class="stat-box"><div class="stat-val" id="totalTersedia">0</div><div class="stat-label">Produk</div></div>
+</div>
+
+<button class="btn-cek-nav" onclick="openInvoiceModal()">🔍 CEK INVOICE / AMBIL AKUN</button>
+
 <div id="productList"></div>
 
 <div id="paymentModal" class="modal">
     <div class="modal-content">
         <div id="step-input">
-            <h2 id="payTitle" style="color:var(--primary-red); margin-bottom:20px;">Produk</h2>
+            <h2 id="payTitle" style="color:var(--primary-red); margin-bottom:5px;">Produk</h2>
+            <p style="font-size:12px; color:#8e959e; margin-bottom:20px;">Lengkapi data di bawah ini</p>
             <input type="text" id="buyerName" class="sheet-input" placeholder="Nama Lengkap">
             <input type="email" id="buyerEmail" class="sheet-input" placeholder="Email Aktif">
+            <div id="payPrice" style="font-size:22px; font-weight:900; margin-bottom:20px; color:var(--primary-red); text-align:center;"></div>
             <button class="btn-buy" id="btnLanjutkan" onclick="tampilkanQRIS()">Lanjutkan</button>
         </div>
-
         <div id="step-qris" style="display:none; text-align:center;">
-            <h3 style="color:var(--primary-red); margin-bottom:15px;">PEMBAYARAN QRIS</h3>
-            
+            <h3 style="color:var(--primary-red); margin-bottom:15px; text-transform:uppercase;">Invoice Pembayaran</h3>
             <table class="qr-info-table">
                 <tr>
-                    <td><div class="qr-info-label">Nama</div><div id="qrName" class="qr-info-value">—</div></td>
-                    <td><div class="qr-info-label">ID QRIS</div><div id="qrId" class="qr-info-value" style="color:var(--primary-red)">—</div></td>
+                    <td><div class="qr-label">Nama</div><div id="qrBuyerName" class="qr-value">—</div></td>
+                    <td><div class="qr-label">ID QRIS</div><div id="qrTransactionIdDisplay" class="qr-value" style="color:var(--primary-red)">—</div></td>
                 </tr>
+                <tr><td colspan="2"><div class="qr-label">Waktu Buat</div><div id="qrCreateTime" class="qr-value">—</div></td></tr>
                 <tr>
-                    <td><div class="qr-info-label">Waktu Buat</div><div id="qrTime" class="qr-info-value">—</div></td>
-                    <td><div class="qr-info-label">Berlaku</div><div id="qrExp" class="qr-info-value" style="color:var(--success-green)">15:00</div></td>
+                    <td><div class="qr-label">Berlaku</div><div id="qrExpiredInfo" class="qr-value" style="color:var(--success-green)">15:00</div></td>
+                    <td><div class="qr-label">Code Cantik</div><div id="qrUniqueCode" class="qr-value" style="color:orange">+ Rp 0</div></td>
                 </tr>
-                <tr>
-                    <td><div class="qr-info-label">Harga Asli</div><div id="qrPriceOri" class="qr-info-value">—</div></td>
-                    <td><div class="qr-info-label">Code Cantik</div><div id="qrUnique" class="qr-info-value" style="color:orange">+ Rp 0</div></td>
-                </tr>
+                <tr><td colspan="2"><div class="qr-label">Harga Asli</div><div id="qrOriginalPrice" class="qr-value">—</div></td></tr>
             </table>
-
             <div style="background: #fff; padding: 10px; border-radius: 15px; width: fit-content; margin: 0 auto 15px;">
                 <img id="qrisImg" src="" style="width: 200px; display: block;">
             </div>
-
-            <div style="background: #0b0d0f; padding: 15px; border-radius: 12px; border: 1.5px dashed var(--primary-red); margin-bottom: 15px;">
+            <div style="background: #0b0d0f; border: 1.5px dashed var(--primary-red); border-radius: 12px; padding: 12px; text-align: center; margin-bottom: 15px;">
                 <span style="font-size: 11px; color: #8e959e;">TOTAL BAYAR</span><br>
                 <strong id="totalAmountDisplay" style="color: var(--primary-red); font-size: 22px;">Rp 0</strong>
             </div>
-
             <button class="btn-buy" disabled style="background:#242a32;">MENUNGGU PEMBAYARAN...</button>
         </div>
-
         <div id="step-success" style="display:none; text-align:center;">
-            <h3 style="color:var(--success-green);">LUNAS!</h3>
-            <div id="finalData" style="background:#000; padding:15px; border-radius:12px; margin:15px 0; word-break:break-all; font-family:monospace; color:var(--success-green); border:1px solid var(--success-green);"></div>
+            <div style="font-size:40px; margin-bottom:10px;">✅</div><h3 style="color:var(--success-green); margin-bottom:5px;">PEMBAYARAN LUNAS!</h3>
+            <div id="finalData" class="data-box"></div>
             <button class="btn-buy" onclick="location.reload()">TUTUP</button>
         </div>
-        <button onclick="closeModal()" style="background:none; border:none; color:#888; width:100%; margin-top:15px; cursor:pointer;">KEMBALI</button>
+        <button onclick="closeModal()" style="background:none; border:none; color:#888; width:100%; margin-top:20px; cursor:pointer; font-size:11px;">KEMBALI</button>
+    </div>
+</div>
+
+<div id="invoiceModal" class="modal">
+    <div class="modal-content">
+        <h2 style="color:var(--primary-red); margin-bottom:15px;">Cek Pesanan</h2>
+        <input type="text" id="inputTrxId" class="sheet-input" placeholder="Masukkan ID Transaksi">
+        <button class="btn-buy" onclick="cariInvoice()">CARI</button>
+        <div id="invoiceResult"></div>
+        <button onclick="closeInvoiceModal()" style="background:none; border:none; color:#8e959e; width:100%; margin-top:15px; cursor:pointer; font-size:12px;">TUTUP</button>
     </div>
 </div>
 
@@ -143,109 +188,136 @@
     let selectedProdId, selectedAkunId, selectedDataAkun, hargaFix, cashifyTransactionId, pollingInterval, countdownInterval;
 
     function getFullDate() {
-        const now = new Date();
         const days = ["MINGGU", "SENIN", "SELASA", "RABU", "KAMIS", "JUMAT", "SABTU"];
         const months = ["JAN", "FEB", "MAR", "APR", "MEI", "JUN", "JUL", "AGU", "SEP", "OKT", "NOV", "DES"];
-        return `${days[now.getDay()]}, ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()} | ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
+        const now = new Date();
+        return `${days[now.getDay()]}, ${now.getDate().toString().padStart(2, '0')} ${months[now.getMonth()]} ${now.getFullYear()} | ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
+    }
+
+    function updateClock() {
+        const display = document.getElementById('liveClock');
+        if(display) display.innerText = getFullDate();
     }
 
     async function initWeb() {
-        setInterval(() => { document.getElementById('liveClock').innerText = getFullDate(); }, 1000);
+        updateClock();
+        setInterval(updateClock, 1000);
         try {
             const res = await fetch(`${BASE_URL}owner_config.json`);
             const config = await res.json();
             if (config) {
                 document.body.style.backgroundImage = `url('${config.bg}')`;
-                document.getElementById('storeNameLabel').innerText = config.storeName;
+                document.getElementById('storeNameLabel').innerText = config.storeName || "MY STORE";
+                document.getElementById('loaderTextDisplay').innerText = config.storeName || "MY STORE"; 
                 if(config.pp) document.getElementById('storePP').src = config.pp;
                 const style = document.createElement('style');
-                style.innerHTML = `:root { --primary-red: ${config.colors.primary}; } .card, .modal-content { background: ${config.colors.card}; backdrop-filter: blur(10px); }`;
+                style.innerHTML = `:root { --primary-red: ${config.colors.primary} !important; } .stat-box, .btn-cek-nav, .card, .modal-content, .qr-info-table td { background: ${config.colors.card} !important; backdrop-filter: blur(15px); }`;
                 document.head.appendChild(style);
             }
             await fetchProducts();
-            document.getElementById('preloader').classList.add('fade-out');
+            setTimeout(() => { document.getElementById('preloader').classList.add('fade-out'); }, 1200);
         } catch (e) { document.getElementById('preloader').style.display='none'; }
     }
 
     async function fetchProducts() {
-        const [resP, resS] = await Promise.all([fetch(`${BASE_URL}produk.json`), fetch(`${BASE_URL}stok_akun.json`)]);
-        const dataP = await resP.json(); const dataS = await resS.json() || {};
-        const container = document.getElementById('productList');
-        Object.keys(dataP).forEach(id => {
-            const stk = dataS[id] ? Object.keys(dataS[id]) : [];
-            produkCache[id] = { nama: dataP[id].nama, harga: dataP[id].harga, stok: dataS[id] || {} };
-            container.innerHTML += `<div class="card" onclick="openPayment('${id}')">
-                <img src="${dataP[id].logo}" width="50" height="50" style="border-radius:10px;">
-                <div style="flex-grow:1;"><div style="font-weight:700;">${dataP[id].nama}</div><div style="color:var(--primary-red); font-weight:800;">Rp ${parseInt(dataP[id].harga).toLocaleString('id-ID')}</div></div>
-                <div style="font-size:10px; background:rgba(16,185,129,0.1); color:#10b981; padding:4px 8px; border-radius:8px;">READY</div>
-            </div>`;
-        });
+        try {
+            const [resP, resS] = await Promise.all([fetch(`${BASE_URL}produk.json`), fetch(`${BASE_URL}stok_akun.json`)]);
+            const dataP = await resP.json(); const dataS = await resS.json() || {};
+            const container = document.getElementById('productList'); container.innerHTML = '';
+            let uReady = 0, pReady = 0;
+            Object.keys(dataP).forEach(id => {
+                const stk = dataS[id] ? Object.keys(dataS[id]) : [];
+                const jml = stk.length; uReady += jml; if(jml>0) pReady++;
+                produkCache[id] = { nama: dataP[id].nama, harga: dataP[id].harga, stok: dataS[id] || {}, logo: dataP[id].logo, terjual: dataP[id].terjual || 0 };
+                const hrg = parseInt(String(dataP[id].harga).replace(/\D/g, '')).toLocaleString('id-ID');
+                
+                container.innerHTML += `<div class="card" onclick="${jml === 0 ? "showToast('Stok habis!')" : `openPayment('${id}')`}">
+                    <div class="prod-logo-container"><img src="${dataP[id].logo}"></div>
+                    <div style="flex-grow:1;"><div class="card-title">${dataP[id].nama}</div><div class="price">Rp ${hrg}</div></div>
+                    <div class="stock-tag ${jml===0?'tag-red':'tag-green'}">${jml===0?'Habis':jml+' Ready'}</div>
+                </div>`;
+            });
+            document.getElementById('totalProd').innerText = Object.keys(dataP).length;
+            document.getElementById('totalStok').innerText = uReady;
+            document.getElementById('totalTersedia').innerText = pReady;
+        } catch(e) {}
     }
 
     function openPayment(id) {
-        selectedProdId = id;
-        const p = produkCache[id];
-        selectedAkunId = Object.keys(p.stok)[0];
-        selectedDataAkun = p.stok[selectedAkunId];
-        hargaFix = parseInt(p.harga);
-        document.getElementById('payTitle').innerText = p.nama;
+        const p = produkCache[id]; const list = Object.keys(p.stok);
+        selectedProdId = id; selectedAkunId = list[0]; selectedDataAkun = p.stok[selectedAkunId];
+        hargaFix = parseInt(String(p.harga).replace(/\D/g, ''));
+        document.getElementById('payTitle').innerText = p.nama; document.getElementById('payPrice').innerText = "Rp " + hargaFix.toLocaleString('id-ID');
         document.getElementById('paymentModal').style.display = 'block';
     }
 
     async function tampilkanQRIS() {
-        const n = document.getElementById('buyerName').value;
-        const e = document.getElementById('buyerEmail').value;
-        if(!n || !e) return alert("Isi data!");
-        
-        const btn = document.getElementById('btnLanjutkan');
-        btn.disabled = true; btn.innerText = "Generating...";
-
+        const n = document.getElementById('buyerName').value.trim(); const e = document.getElementById('buyerEmail').value.trim();
+        if(!n || !e) return showToast("Isi data!");
+        const btn = document.getElementById('btnLanjutkan'); btn.disabled = true; btn.innerHTML = 'Memproses...';
         try {
             const res = await fetch('/api/generate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: CASHIFY_QRIS_ID, amount: hargaFix, useUniqueCode: true }) });
             const json = await res.json();
             const { qr_string, transactionId, totalAmount } = json.data;
-
             document.getElementById('qrisImg').src = `https://larabert-qrgen.hf.space/v1/create-qr-code?data=${encodeURIComponent(qr_string)}`;
             
-            // ISI DATA TABEL RAPI
-            document.getElementById('qrName').innerText = n.split(' ')[0].toUpperCase();
-            document.getElementById('qrId').innerText = transactionId;
-            document.getElementById('qrTime').innerText = getFullDate().split('|')[1].trim();
-            document.getElementById('qrPriceOri').innerText = "Rp " + hargaFix.toLocaleString('id-ID');
-            document.getElementById('qrUnique').innerText = "+ Rp " + (totalAmount - hargaFix);
+            document.getElementById('qrBuyerName').innerText = n.split(' ')[0].toUpperCase();
+            document.getElementById('qrTransactionIdDisplay').innerText = transactionId;
+            document.getElementById('qrCreateTime').innerText = getFullDate();
+            document.getElementById('qrOriginalPrice').innerText = "Rp " + hargaFix.toLocaleString('id-ID');
+            document.getElementById('qrUniqueCode').innerText = "+ Rp " + (totalAmount - hargaFix);
             document.getElementById('totalAmountDisplay').innerText = "Rp " + totalAmount.toLocaleString('id-ID');
 
-            document.getElementById('step-input').style.display = 'none';
-            document.getElementById('step-qris').style.display = 'block';
+            document.getElementById('step-input').style.display = 'none'; document.getElementById('step-qris').style.display = 'block';
             cashifyTransactionId = transactionId;
-            startCountdown(900);
-            mulaiPolling();
-        } catch(err) { alert("Gagal!"); btn.disabled = false; }
+            startCountdown(15 * 60); mulaiPolling();
+        } catch(err) { showToast("Gagal QRIS!"); btn.disabled = false; btn.innerHTML = 'Lanjutkan'; }
     }
 
-    function startCountdown(t) {
+    function startCountdown(duration) {
+        if (countdownInterval) clearInterval(countdownInterval);
+        let timer = duration, minutes, seconds;
+        const display = document.getElementById('qrExpiredInfo');
         countdownInterval = setInterval(() => {
-            let m = Math.floor(t/60), s = t%60;
-            document.getElementById('qrExp').innerText = `${m}:${s<10?'0':''}${s}`;
-            if (--t < 0) clearInterval(countdownInterval);
+            minutes = parseInt(timer / 60, 10);
+            seconds = parseInt(timer % 60, 10);
+            display.innerText = (minutes < 10 ? "0" + minutes : minutes) + ":" + (seconds < 10 ? "0" + seconds : seconds);
+            if (--timer < 0) { clearInterval(countdownInterval); display.innerText = "EXPIRED"; }
         }, 1000);
     }
 
-    function mulaiPolling() {
-        pollingInterval = setInterval(async () => {
-            const res = await fetch('/api/check-status', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ transactionId: cashifyTransactionId }) });
-            const json = await res.json();
-            if (json.data?.status === 'paid') {
-                clearInterval(pollingInterval);
-                document.getElementById('step-qris').style.display = 'none';
-                document.getElementById('step-success').style.display = 'block';
-                document.getElementById('finalData').innerText = selectedDataAkun;
-                await fetch(`${BASE_URL}stok_akun/${selectedProdId}/${selectedAkunId}.json`, { method: 'DELETE' });
-            }
-        }, 5000);
+    function mulaiPolling() { 
+        if (pollingInterval) clearInterval(pollingInterval);
+        pollingInterval = setInterval(async () => { 
+            const res = await fetch('/api/check-status', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ transactionId: cashifyTransactionId }) }); 
+            const json = await res.json(); 
+            if (json.data?.status === 'paid') { clearInterval(pollingInterval); clearInterval(countdownInterval); prosesLunas(); } 
+        }, 5000); 
     }
 
-    function closeModal() { location.reload(); }
+    async function prosesLunas() { 
+        const trxId = `TRX-${Math.floor(100000 + Math.random() * 900000)}`; const emailU = document.getElementById('buyerEmail').value;
+        await fetch(`${BASE_URL}stok_akun/${selectedProdId}/${selectedAkunId}.json`, { method: 'DELETE' });
+        await fetch(`${BASE_URL}transaksi/${trxId}.json`, { method: 'PUT', body: JSON.stringify({ data: selectedDataAkun, email: emailU, id_trx: trxId }) });
+        document.getElementById('finalData').innerText = selectedDataAkun;
+        document.getElementById('step-qris').style.display = 'none'; document.getElementById('step-success').style.display = 'block';
+        showToast("Lunas!", true);
+    }
+
+    async function cariInvoice() {
+        const id = document.getElementById('inputTrxId').value.trim();
+        const res = await fetch(`${BASE_URL}transaksi/${id}.json`); const d = await res.json();
+        if (!d) return showToast("Tidak ditemukan!");
+        document.getElementById('invoiceResult').innerHTML = `<div class="data-box" id="invData">${d.data}</div><button class="btn-buy" style="background:var(--success-green); margin-top:10px;" onclick="copyData('invData')">SALIN DATA</button>`;
+    }
+
+    function onQrLoaded() { document.getElementById('qrLoading').style.display = 'none'; document.getElementById('qrisImg').style.display = 'block'; }
+    function closeModal() { clearInterval(pollingInterval); clearInterval(countdownInterval); document.getElementById('paymentModal').style.display = 'none'; document.getElementById('step-input').style.display='block'; document.getElementById('step-qris').style.display='none'; }
+    function closeInvoiceModal() { document.getElementById('invoiceModal').style.display = 'none'; }
+    function openInvoiceModal() { document.getElementById('invoiceModal').style.display = 'block'; }
+    function showToast(m, s=false) { const t = document.getElementById('errorToast'); t.innerText = m; t.className = "toast" + (s ? " success" : "") + " show"; setTimeout(() => t.classList.remove('show'), 3000); }
+    function copyData(id) { navigator.clipboard.writeText(document.getElementById(id).innerText); showToast("Berhasil disalin!", true); }
+
     initWeb();
 </script>
 </body>
