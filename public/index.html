@@ -6,7 +6,7 @@
     <title>NIDALOP STORE WEB</title>
     
     <style>
-        /* --- 1. PRELOADER --- */
+        /* --- 1. PRELOADER FIX WARNA --- */
         #preloader {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -31,7 +31,7 @@
         .loader-text { margin-top: 35px; color: var(--primary-red, #ffffff); font-size: 11px; font-weight: 900; letter-spacing: 5px; text-transform: uppercase; opacity: 0.8; transition: color 0.5s ease; text-align: center; }
         @keyframes orbit-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-        /* --- 2. LAYOUT NORMAL --- */
+        /* --- 2. LAYOUT NORMAL (FULL SCROLL) --- */
         :root { --primary-red: #ffffff; --card-bg: rgba(22, 26, 30, 0.7); --success-green: #10b981; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
         
@@ -49,13 +49,14 @@
         }
 
         /* WAKTU REALTIME STYLE */
-        .live-clock {
-            font-size: 11px;
+        #liveClock {
+            font-size: 10.5px;
             color: #8e959e;
-            font-weight: 600;
+            font-weight: 700;
             letter-spacing: 1px;
-            margin-top: 5px;
+            margin-top: 8px;
             text-transform: uppercase;
+            display: block;
         }
 
         .toast { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); background: var(--primary-red); color: white; padding: 12px 20px; border-radius: 12px; font-size: 13px; font-weight: bold; z-index: 10000; transition: 0.5s; width: 90%; text-align: center; }
@@ -113,7 +114,7 @@
 <div class="header">
     <div class="profile-img"><img id="storePP" src="" width="100%" height="100%" style="object-fit: cover;"></div>
     <div class="store-name" id="storeNameLabel">MY STORE</div>
-    <div id="liveClock" class="live-clock">SENIN, 01 JAN 2024 | 00:00:00</div>
+    <div id="liveClock">MEMUAT WAKTU...</div>
 </div>
 
 <div class="stats-container">
@@ -178,10 +179,10 @@
     const produkCache = {};
     let selectedProdId, selectedAkunId, selectedDataAkun, hargaFix, cashifyTransactionId, pollingInterval, countdownInterval;
 
-    // FUNGSI JAM REALTIME LENGKAP
-    function updateTime() {
-        const days = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
-        const months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
+    // FUNGSI JAM REALTIME FIX
+    function updateClock() {
+        const days = ["MINGGU", "SENIN", "SELASA", "RABU", "KAMIS", "JUMAT", "SABTU"];
+        const months = ["JAN", "FEB", "MAR", "APR", "MEI", "JUN", "JUL", "AGU", "SEP", "OKT", "NOV", "DES"];
         const now = new Date();
         const d = days[now.getDay()];
         const date = now.getDate().toString().padStart(2, '0');
@@ -191,12 +192,15 @@
         const min = now.getMinutes().toString().padStart(2, '0');
         const s = now.getSeconds().toString().padStart(2, '0');
         
-        document.getElementById('liveClock').innerText = `${d}, ${date} ${m} ${y} | ${h}:${min}:${s}`;
+        const display = document.getElementById('liveClock');
+        if(display) display.innerText = `${d}, ${date} ${m} ${y} | ${h}:${min}:${s}`;
     }
-    setInterval(updateTime, 1000);
 
     async function initWeb() {
-        updateTime();
+        // JALANKAN JAM SEGERA
+        updateClock();
+        setInterval(updateClock, 1000);
+
         try {
             const res = await fetch(`${BASE_URL}owner_config.json`);
             const config = await res.json();
@@ -271,10 +275,7 @@
             minutes = minutes < 10 ? "0" + minutes : minutes;
             seconds = seconds < 10 ? "0" + seconds : seconds;
             display.innerText = minutes + ":" + seconds;
-            if (--timer < 0) {
-                clearInterval(countdownInterval);
-                display.innerText = "EXPIRED";
-            }
+            if (--timer < 0) { clearInterval(countdownInterval); display.innerText = "EXPIRED"; }
         }, 1000);
     }
 
@@ -310,7 +311,7 @@
     function closeModal() { clearInterval(pollingInterval); clearInterval(countdownInterval); document.getElementById('paymentModal').style.display = 'none'; document.getElementById('step-input').style.display='block'; document.getElementById('step-qris').style.display='none'; }
     function openInvoiceModal() { document.getElementById('invoiceModal').style.display = 'block'; }
     function closeInvoiceModal() { document.getElementById('invoiceModal').style.display = 'none'; }
-    function showToast(m) { const t = document.getElementById('errorToast'); t.innerText = m; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3000); }
+    function showToast(m) { const t = document.getElementById('errorToast'); t.innerText = m; t.classList.add('show'); setTimeout(() => { t.classList.remove('show'); }, 3000); }
     function copyData(id) { navigator.clipboard.writeText(document.getElementById(id).innerText); showToast("Berhasil disalin!"); }
 
     initWeb();
