@@ -50,18 +50,16 @@
 
         #liveClock { font-size: 10.5px; color: #8e959e; font-weight: 700; letter-spacing: 1px; margin-top: 8px; text-transform: uppercase; text-align: center; }
 
-        /* --- FIX TOAST (WARNA DISESUAIKAN) --- */
         .toast { 
             position: fixed; top: -100px; left: 50%; transform: translateX(-50%); 
-            background: #ff4d4d; /* WARNA MERAH UNTUK NOTIF BIASA / HABIS */
-            color: white; padding: 12px 20px; 
+            background: #ff4d4d; color: white; padding: 12px 20px; 
             border-radius: 12px; font-size: 13px; font-weight: bold; z-index: 10000; 
             transition: 0.5s; width: 90%; max-width: 400px; text-align: center; 
             opacity: 0; pointer-events: none;
             box-shadow: 0 10px 20px rgba(0,0,0,0.4);
         }
         .toast.show { top: 20px; opacity: 1; pointer-events: auto; }
-        .toast.success { background: var(--success-green); } /* TETAP HIJAU UNTUK LUNAS */
+        .toast.success { background: var(--success-green); }
 
         .header { text-align: center; margin-bottom: 25px; padding-top: 10px; }
         .profile-img { width: 85px; height: 85px; border-radius: 50%; border: 2px solid var(--primary-red); margin: 0 auto 12px; overflow: hidden; background: #000; }
@@ -83,6 +81,9 @@
         .card-title { font-size: 15px; font-weight: 600; color: #fff; }
         .price { color: var(--primary-red); font-size: 17px; font-weight: 800; }
         
+        /* STYLE INFO TERJUAL */
+        .sold-count { font-size: 10px; color: #8e959e; font-weight: bold; margin-top: 2px; }
+
         .stock-tag { position: absolute; top: 15px; right: 15px; font-size: 9px; font-weight: 800; padding: 3px 8px; border-radius: 8px; text-transform: uppercase; }
         .tag-red { background: rgba(255, 0, 0, 0.1); color: #ff4d4d; border: 1px solid #ff4d4d; }
         .tag-green { background: rgba(16, 185, 129, 0.1); color: var(--success-green); border: 1px solid var(--success-green); }
@@ -156,7 +157,7 @@
             <div style="background: #fff; padding: 10px; border-radius: 15px; width: fit-content; margin: 0 auto 15px;">
                 <img id="qrisImg" src="" style="width: 200px; display: block;">
             </div>
-            <div style="background: #0b0d0f; border: 1.5px dashed var(--primary-red); border-radius: 12px; padding: 12px; text-align: center; margin-bottom: 15px;">
+            <div style="background: #0b0d0f; border: 1.5px dashed var(--primary-red); border-radius: 12px; padding: 12px; text-align: center; margin: 10px 0;">
                 <span style="font-size: 11px; color: #8e959e;">TOTAL BAYAR</span><br>
                 <strong id="totalAmountDisplay" style="color: var(--primary-red); font-size: 22px;">Rp 0</strong>
             </div>
@@ -233,7 +234,11 @@
                 
                 container.innerHTML += `<div class="card" onclick="${jml === 0 ? "showToast('Stok habis!')" : `openPayment('${id}')`}">
                     <div class="prod-logo-container"><img src="${dataP[id].logo}"></div>
-                    <div style="flex-grow:1;"><div class="card-title">${dataP[id].nama}</div><div class="price">Rp ${hrg}</div></div>
+                    <div style="flex-grow:1;">
+                        <div class="card-title">${dataP[id].nama}</div>
+                        <div class="price">Rp ${hrg}</div>
+                        <div class="sold-count">🔥 ${produkCache[id].terjual} Terjual</div>
+                    </div>
                     <div class="stock-tag ${jml===0?'tag-red':'tag-green'}">${jml===0?'Habis':jml+' Ready'}</div>
                 </div>`;
             });
@@ -291,17 +296,27 @@
         pollingInterval = setInterval(async () => { 
             const res = await fetch('/api/check-status', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ transactionId: cashifyTransactionId }) }); 
             const json = await res.json(); 
-            if (json.data?.status === 'paid') { clearInterval(pollingInterval); clearInterval(countdownInterval); prosesLunas(); } 
+            if (json.data?.status === 'paid') { 
+                clearInterval(pollingInterval); 
+                clearInterval(countdownInterval); 
+                prosesLunas(); 
+            } 
         }, 5000); 
     }
 
     async function prosesLunas() { 
         const trxId = `TRX-${Math.floor(100000 + Math.random() * 900000)}`; const emailU = document.getElementById('buyerEmail').value;
-        await fetch(`${BASE_URL}stok_akun/${selectedProdId}/${selectedAkunId}.json`, { method: 'DELETE' });
-        await fetch(`${BASE_URL}transaksi/${trxId}.json`, { method: 'PUT', body: JSON.stringify({ data: selectedDataAkun, email: emailU, id_trx: trxId }) });
-        document.getElementById('finalData').innerText = selectedDataAkun;
-        document.getElementById('step-qris').style.display = 'none'; document.getElementById('step-success').style.display = 'block';
-        showToast("Lunas!", true);
+        try {
+            await fetch(`${BASE_URL}stok_akun/${selectedProdId}/${selectedAkunId}.json`, { method: 'DELETE' });
+            // Update Terjual di Database
+            const newSold = (produkCache[selectedProdId].terjual || 0) + 1;
+            await fetch(`${BASE_URL}produk/${selectedProdId}.json`, { method: 'PATCH', body: JSON.stringify({ terjual: newSold }) });
+            
+            await fetch(`${BASE_URL}transaksi/${trxId}.json`, { method: 'PUT', body: JSON.stringify({ data: selectedDataAkun, email: emailU, id_trx: trxId }) });
+            document.getElementById('finalData').innerText = selectedDataAkun;
+            document.getElementById('step-qris').style.display = 'none'; document.getElementById('step-success').style.display = 'block';
+            showToast("Lunas!", true);
+        } catch(e) { showToast("Error Simpan Data!"); }
     }
 
     async function cariInvoice() {
@@ -316,7 +331,7 @@
     function closeInvoiceModal() { document.getElementById('invoiceModal').style.display = 'none'; }
     function openInvoiceModal() { document.getElementById('invoiceModal').style.display = 'block'; }
     function showToast(m, s=false) { const t = document.getElementById('errorToast'); t.innerText = m; t.className = "toast" + (s ? " success" : "") + " show"; setTimeout(() => t.classList.remove('show'), 3000); }
-    function copyData(id) { navigator.clipboard.writeText(document.getElementById(id).innerText); showToast("Berhasil disalin!", true); }
+    function copyData(id) { navigator.clipboard.writeText(document.getElementById(id).innerText); showToast("Disalin!", true); }
 
     initWeb();
 </script>
