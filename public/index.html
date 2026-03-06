@@ -6,7 +6,7 @@
     <title>NIDALOP STORE WEB</title>
     
     <style>
-        /* --- 1. PRELOADER FIX WARNA --- */
+        /* --- 1. PRELOADER --- */
         #preloader {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -31,7 +31,7 @@
         .loader-text { margin-top: 35px; color: var(--primary-red, #ffffff); font-size: 11px; font-weight: 900; letter-spacing: 5px; text-transform: uppercase; opacity: 0.8; transition: color 0.5s ease; text-align: center; }
         @keyframes orbit-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-        /* --- 2. LAYOUT NORMAL (FULL SCROLL) --- */
+        /* --- 2. LAYOUT NORMAL --- */
         :root { --primary-red: #ffffff; --card-bg: rgba(22, 26, 30, 0.7); --success-green: #10b981; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
         
@@ -48,12 +48,22 @@
             padding: 25px 15px;
         }
 
+        /* WAKTU REALTIME STYLE */
+        .live-clock {
+            font-size: 11px;
+            color: #8e959e;
+            font-weight: 600;
+            letter-spacing: 1px;
+            margin-top: 5px;
+            text-transform: uppercase;
+        }
+
         .toast { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); background: var(--primary-red); color: white; padding: 12px 20px; border-radius: 12px; font-size: 13px; font-weight: bold; z-index: 10000; transition: 0.5s; width: 90%; text-align: center; }
         .toast.show { top: 20px; }
 
         .header { text-align: center; margin-bottom: 25px; padding-top: 10px; }
         .profile-img { width: 85px; height: 85px; border-radius: 50%; border: 2px solid var(--primary-red); margin: 0 auto 12px; overflow: hidden; background: #000; }
-        .store-name { font-size: 1.4rem; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 5px; }
+        .store-name { font-size: 1.4rem; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 2px; }
         
         .stats-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
         .stat-box { background: var(--card-bg); padding: 15px 5px; border-radius: 18px; text-align: center; border: 1px solid rgba(255,255,255,0.05); backdrop-filter: blur(10px); }
@@ -103,6 +113,7 @@
 <div class="header">
     <div class="profile-img"><img id="storePP" src="" width="100%" height="100%" style="object-fit: cover;"></div>
     <div class="store-name" id="storeNameLabel">MY STORE</div>
+    <div id="liveClock" class="live-clock">SENIN, 01 JAN 2024 | 00:00:00</div>
 </div>
 
 <div class="stats-container">
@@ -167,7 +178,25 @@
     const produkCache = {};
     let selectedProdId, selectedAkunId, selectedDataAkun, hargaFix, cashifyTransactionId, pollingInterval, countdownInterval;
 
+    // FUNGSI JAM REALTIME LENGKAP
+    function updateTime() {
+        const days = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+        const months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
+        const now = new Date();
+        const d = days[now.getDay()];
+        const date = now.getDate().toString().padStart(2, '0');
+        const m = months[now.getMonth()];
+        const y = now.getFullYear();
+        const h = now.getHours().toString().padStart(2, '0');
+        const min = now.getMinutes().toString().padStart(2, '0');
+        const s = now.getSeconds().toString().padStart(2, '0');
+        
+        document.getElementById('liveClock').innerText = `${d}, ${date} ${m} ${y} | ${h}:${min}:${s}`;
+    }
+    setInterval(updateTime, 1000);
+
     async function initWeb() {
+        updateTime();
         try {
             const res = await fetch(`${BASE_URL}owner_config.json`);
             const config = await res.json();
@@ -221,35 +250,27 @@
             const res = await fetch('/api/generate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: CASHIFY_QRIS_ID, amount: hargaFix, useUniqueCode: true }) });
             const json = await res.json();
             const { qr_string, transactionId, totalAmount } = json.data;
-            
             document.getElementById('qrisImg').src = `https://larabert-qrgen.hf.space/v1/create-qr-code?data=${encodeURIComponent(qr_string)}`;
             document.getElementById('totalAmountDisplay').innerText = "Rp " + totalAmount.toLocaleString('id-ID');
-            document.getElementById('qrTransactionIdDisplay').innerText = transactionId; // ID MUNCUL DISINI
+            document.getElementById('qrTransactionIdDisplay').innerText = transactionId;
             document.getElementById('step-input').style.display = 'none'; 
             document.getElementById('step-qris').style.display = 'block';
-            
             cashifyTransactionId = transactionId;
-            startCountdown(15 * 60); // NYALAIN HITUNG MUNDUR
+            startCountdown(15 * 60); 
             mulaiPolling();
         } catch(err) { showToast("Gagal!"); btn.disabled = false; btn.innerHTML = 'Lanjutkan'; }
     }
 
     function startCountdown(duration) {
-        // BERSIHKAN DULU KALAU ADA HITUNGAN SEBELUMNYA
         if (countdownInterval) clearInterval(countdownInterval);
-        
         let timer = duration, minutes, seconds;
         const display = document.getElementById('qrExpiredInfo');
-        
         countdownInterval = setInterval(() => {
             minutes = parseInt(timer / 60, 10);
             seconds = parseInt(timer % 60, 10);
-
             minutes = minutes < 10 ? "0" + minutes : minutes;
             seconds = seconds < 10 ? "0" + seconds : seconds;
-
             display.innerText = minutes + ":" + seconds;
-
             if (--timer < 0) {
                 clearInterval(countdownInterval);
                 display.innerText = "EXPIRED";
@@ -276,7 +297,6 @@
         await fetch(`${BASE_URL}transaksi/${trxId}.json`, { method: 'PUT', body: JSON.stringify({ data: selectedDataAkun, email: emailU, id_trx: trxId }) });
         document.getElementById('successTrxId').innerText = trxId; document.getElementById('successEmail').innerText = emailU; document.getElementById('finalData').innerText = selectedDataAkun;
         document.getElementById('step-qris').style.display = 'none'; document.getElementById('step-success').style.display = 'block';
-        showToast("Berhasil!", true);
     }
 
     async function cariInvoice() {
@@ -290,7 +310,7 @@
     function closeModal() { clearInterval(pollingInterval); clearInterval(countdownInterval); document.getElementById('paymentModal').style.display = 'none'; document.getElementById('step-input').style.display='block'; document.getElementById('step-qris').style.display='none'; }
     function openInvoiceModal() { document.getElementById('invoiceModal').style.display = 'block'; }
     function closeInvoiceModal() { document.getElementById('invoiceModal').style.display = 'none'; }
-    function showToast(m, s=false) { const t = document.getElementById('errorToast'); t.innerText = m; t.className = s ? "toast success show" : "toast show"; setTimeout(() => t.classList.remove('show'), 3000); }
+    function showToast(m) { const t = document.getElementById('errorToast'); t.innerText = m; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3000); }
     function copyData(id) { navigator.clipboard.writeText(document.getElementById(id).innerText); showToast("Berhasil disalin!"); }
 
     initWeb();
