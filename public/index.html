@@ -6,127 +6,94 @@
     <title>NIDALOP STORE WEB</title>
     
     <style>
-        /* --- STYLE PRELOADER DYNAMIC --- */
+        /* --- 1. PRELOADER MEWAH (FIX WARNA DYNAMIS) --- */
         #preloader {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: #050608;
+            background: #000000;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            z-index: 9999999;
+            z-index: 999999999;
             opacity: 1;
             visibility: visible;
-            transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.8s;
+            transition: opacity 1s cubic-bezier(0.4, 0, 0.2, 1);
         }
         #preloader.fade-out { opacity: 0; visibility: hidden; }
-        .orbit-spinner {
-            position: relative; width: 65px; height: 65px;
-            border-radius: 50%; border: 2px solid rgba(255,255,255,0.05);
-            animation: orbit-rotate 1.2s linear infinite;
+        .orbit-container { position: relative; width: 85px; height: 85px; }
+        .orbit-ring { position: absolute; width: 100%; height: 100%; border: 2px solid rgba(255, 255, 255, 0.05); border-radius: 50%; }
+        .orbit-spinner { position: absolute; width: 100%; height: 100%; border-radius: 50%; animation: orbit-spin 1.2s linear infinite; }
+        .orbit-ball { 
+            position: absolute; top: -8px; left: 50%; width: 16px; height: 16px; 
+            background-color: var(--primary-red, #ffffff); border-radius: 50%; transform: translateX(-50%);
+            box-shadow: 0 0 15px var(--primary-red, #ffffff), 0 0 30px var(--primary-red, #ffffff);
+            transition: background-color 0.5s ease, box-shadow 0.5s ease;
         }
-        .orbit-ball {
-            position: absolute; top: -6px; left: 50%;
-            width: 14px; height: 14px; background-color: #ffffff;
-            border-radius: 50%; transform: translateX(-50%);
-            box-shadow: 0 0 20px #ffffff;
-        }
-        @keyframes orbit-rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        .loader-text { margin-top: 25px; color: #ffffff; font-size: 10px; font-weight: 900; letter-spacing: 5px; text-transform: uppercase; opacity: 0.8; }
+        .loader-text { margin-top: 35px; color: var(--primary-red, #ffffff); font-size: 11px; font-weight: 900; letter-spacing: 5px; text-transform: uppercase; opacity: 0.8; transition: color 0.5s ease; text-align: center; }
+        @keyframes orbit-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-        :root { --primary-red: #555555; --card-bg: rgba(22, 26, 30, 0.7); --success-green: #10b981; }
+        /* --- 2. LAYOUT UTAMA --- */
+        :root { --primary-red: #ffffff; --card-bg: rgba(22, 26, 30, 0.7); --success-green: #10b981; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-        
-        body { 
-            background-color: #0b0d0f; 
-            color: #ffffff; 
-            max-width: 500px; 
-            margin: auto; 
-            overflow: hidden; 
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            padding: 15px;
-        }
-
-        .fixed-top-content { flex-shrink: 0; }
-        .toast { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); background: var(--primary-red); color: white; padding: 12px 20px; border-radius: 12px; font-size: 13px; font-weight: bold; z-index: 10000; transition: 0.5s; box-shadow: 0 10px 20px rgba(0,0,0,0.4); width: 90%; max-width: 400px; text-align: center; }
+        body { background-color: #0b0d0f; background-size: cover !important; background-position: center !important; background-attachment: fixed !important; color: #ffffff; max-width: 500px; margin: auto; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
+        .toast { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); background: var(--primary-red); color: white; padding: 12px 20px; border-radius: 12px; font-size: 13px; font-weight: bold; z-index: 10000; transition: 0.5s; width: 90%; text-align: center; }
         .toast.show { top: 20px; }
         .toast.success { background: var(--success-green); }
-        .header { text-align: center; margin-bottom: 20px; padding-top: 10px; }
+        .fixed-top-content { flex-shrink: 0; padding: 20px 15px 5px; z-index: 10; background: transparent; }
+        .header { text-align: center; margin-bottom: 20px; }
         .profile-img { width: 75px; height: 75px; border-radius: 50%; border: 2px solid var(--primary-red); margin: 0 auto 10px; overflow: hidden; }
         .store-name { font-size: 1.3rem; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; }
         .stats-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
-        .stat-box { background: var(--card-bg); padding: 12px 5px; border-radius: 15px; text-align: center; border: 1px solid #242a32; }
+        .stat-box { background: var(--card-bg); padding: 12px 5px; border-radius: 15px; text-align: center; border: 1px solid rgba(255,255,255,0.05); backdrop-filter: blur(10px); }
         .stat-val { font-size: 18px; font-weight: 800; color: var(--primary-red); }
         .stat-label { font-size: 9px; color: #8e959e; text-transform: uppercase; margin-top: 4px; font-weight: bold; }
-        .btn-cek-nav { background: var(--card-bg); border: 1px solid #331010; color: var(--primary-red); padding: 12px; border-radius: 15px; width: 100%; margin-bottom: 15px; font-size: 12px; font-weight: bold; cursor: pointer; transition: 0.2s; }
-
-        #productList { 
-            display: flex; 
-            flex-direction: column; 
-            gap: 12px; 
-            overflow-y: auto; 
-            flex-grow: 1;
-            padding-bottom: 20px;
-            -webkit-overflow-scrolling: touch;
-        }
+        .btn-cek-nav { background: var(--card-bg); border: 1px solid rgba(255,255,255,0.1); color: var(--primary-red); padding: 12px; border-radius: 15px; width: 100%; margin-bottom: 10px; font-size: 12px; font-weight: bold; cursor: pointer; }
+        #productList { display: flex; flex-direction: column; gap: 12px; overflow-y: auto; flex-grow: 1; padding: 5px 15px 120px; -webkit-overflow-scrolling: touch; }
         #productList::-webkit-scrollbar { width: 0px; }
-
-        .card { background: var(--card-bg); border: 1px solid #242a32; border-radius: 18px; padding: 15px; position: relative; cursor: pointer; backdrop-filter: blur(10px); transition: transform 0.2s; display: flex; align-items: center; gap: 15px; flex-shrink: 0; }
-        .card:active { transform: scale(0.98); }
+        .card { background: var(--card-bg); border: 1px solid #242a32; border-radius: 18px; padding: 15px; position: relative; cursor: pointer; backdrop-filter: blur(10px); display: flex; align-items: center; gap: 15px; flex-shrink: 0; }
         .prod-logo-container { width: 55px; height: 55px; border-radius: 14px; overflow: hidden; border: 1px solid #333; flex-shrink: 0; background: #000; }
         .prod-logo-container img { width: 100%; height: 100%; object-fit: cover; }
-        .prod-details { flex-grow: 1; }
-        .card-title { font-size: 15px; font-weight: 600; color: #fff; margin-bottom: 2px; }
+        .card-title { font-size: 15px; font-weight: 600; color: #fff; }
         .price { color: var(--primary-red); font-size: 17px; font-weight: 800; }
-        .terjual-info { font-size: 10px; color: #8e959e; font-weight: bold; margin-top: 2px; }
         .stock-tag { position: absolute; top: 15px; right: 15px; font-size: 9px; font-weight: 800; padding: 3px 8px; border-radius: 8px; text-transform: uppercase; }
         .tag-red { background: rgba(85, 85, 85, 0.1); color: var(--primary-red); border: 1px solid var(--primary-red); }
         .tag-green { background: rgba(16, 185, 129, 0.1); color: var(--success-green); border: 1px solid var(--success-green); }
-        
-        .modal { display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); }
-        .modal-content { position: fixed; bottom: 0; width: 100%; max-width: 500px; background: #161a1e; padding: 25px 20px 35px; border-radius: 30px 30px 0 0; border-top: 2px solid var(--primary-red); left: 50%; transform: translateX(-50%); max-height: 95vh; overflow-y: auto; }
-        .sheet-input { width: 100%; background: #0b0d0f; border: 1.5px solid #242a32; padding: 14px; color: white; border-radius: 14px; outline: none; font-size: 14px; margin-bottom: 12px; }
-        .sheet-input:focus { border-color: var(--primary-red); }
-        .btn-buy { background: var(--primary-red); color: white; border: none; padding: 16px; width: 100%; border-radius: 14px; font-weight: bold; cursor: pointer; font-size: 14px; }
 
-        /* --- FIX QRIS LAYOUT --- */
+        /* --- MODALS --- */
+        .modal { display: none; position: fixed; z-index: 99999; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); }
+        .modal-content { position: fixed; bottom: 0; width: 100%; max-width: 500px; background: #161a1e; padding: 25px 20px 35px; border-radius: 30px 30px 0 0; border-top: 2px solid var(--primary-red); left: 50%; transform: translateX(-50%); max-height: 90vh; overflow-y: auto; }
+        .sheet-input { width: 100%; background: #0b0d0f; border: 1.5px solid #242a32; padding: 14px; color: white; border-radius: 14px; outline: none; margin-bottom: 12px; font-size: 14px; }
+        .btn-buy { background: var(--primary-red); color: white; border: none; padding: 16px; width: 100%; border-radius: 14px; font-weight: bold; cursor: pointer; font-size: 14px; }
         .qr-info-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; border: 1px solid #242a32; border-radius: 12px; overflow: hidden; }
         .qr-info-table td { padding: 10px; border: 1px solid #242a32; text-align: center; background: #0b0d0f; }
         .qr-info-label { font-size: 11px; color: #8e959e; font-weight: bold; text-transform: uppercase; margin-bottom: 2px; }
         .qr-info-value { font-size: 14px; font-weight: 800; }
-
-        .qris-box { background: #1a1a1a; border-radius: 15px; padding: 15px; margin: 15px auto; width: fit-content; line-height: 0; position: relative; min-width: 210px; min-height: 210px; display: flex; align-items: center; justify-content: center; border: 2px solid var(--primary-red); }
-        .qris-box img { width: 200px !important; height: 200px !important; display: block; border-radius: 8px; background: white; padding: 10px; }
-        .qr-loading { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: #1a1a1a; border-radius: 15px; z-index: 2; }
-        .amount-highlight { background: #0b0d0f; border: 1.5px dashed var(--primary-red); border-radius: 12px; padding: 12px; text-align: center; margin: 10px 0; }
-        .amount-highlight strong { color: var(--primary-red); font-size: 20px; font-weight: 800; }
-        .data-box { background: #000; border: 1.5px dashed var(--success-green); padding: 15px; border-radius: 12px; margin-top: 15px; color: var(--success-green); font-family: monospace; font-size: 14px; word-break: break-all; text-align: left; position: relative; }
+        .data-box { background: #000; border: 1.5px dashed var(--success-green); padding: 15px; border-radius: 12px; margin-top: 15px; color: var(--success-green); font-family: monospace; font-size: 14px; word-break: break-all; text-align: left; }
     </style>
 </head>
 <body>
 
 <div id="preloader">
-    <div class="orbit-spinner"><div class="orbit-ball"></div></div>
-    <div class="loader-text" id="loaderText">LOADING...</div>
+    <div class="orbit-container">
+        <div class="orbit-ring"></div>
+        <div class="orbit-spinner"><div class="orbit-ball"></div></div>
+    </div>
+    <div class="loader-text" id="loaderTextDisplay">LOADING...</div>
 </div>
 
 <div id="errorToast" class="toast">Pesan Error</div>
 
 <div class="fixed-top-content">
     <div class="header">
-        <div class="profile-img"><img src="" width="100%" height="100%" style="object-fit: cover;"></div>
-        <div class="store-name" id="storeNameLabel">NIDALOP STORE</div>
+        <div class="profile-img"><img id="storePP" src="" width="100%" height="100%" style="object-fit: cover;"></div>
+        <div class="store-name" id="storeNameLabel">MY STORE</div>
     </div>
-
     <div class="stats-container">
         <div class="stat-box"><div class="stat-val" id="totalProd">0</div><div class="stat-label">Total</div></div>
         <div class="stat-box"><div class="stat-val" id="totalStok">0</div><div class="stat-label">Ready</div></div>
         <div class="stat-box"><div class="stat-val" id="totalTersedia">0</div><div class="stat-label">Produk</div></div>
     </div>
-
     <button class="btn-cek-nav" onclick="openInvoiceModal()">🔍 CEK INVOICE / AMBIL AKUN</button>
 </div>
 
@@ -143,42 +110,35 @@
             <button class="btn-buy" id="btnLanjutkan" onclick="tampilkanQRIS()">Lanjutkan</button>
         </div>
         <div id="step-qris" style="display:none; text-align:center;">
-            <h3 style="color:var(--primary-red); margin-bottom:15px; text-transform:uppercase; letter-spacing:1px;">Scan QRIS</h3>
-            
+            <h3 style="color:var(--primary-red); margin-bottom:15px; text-transform:uppercase;">Scan QRIS</h3>
             <table class="qr-info-table">
-                <tr>
-                    <td><div class="qr-info-label">ID QRIS</div><div class="qr-info-value" id="qrTransactionIdDisplay" style="color:var(--primary-red)">—</div></td>
-                </tr>
-                <tr>
-                    <td><div class="qr-info-label">BERLAKU</div><div class="qr-info-value" id="qrExpiredInfo" style="color:var(--success-green)">15:00</div></td>
-                </tr>
+                <tr><td><div class="qr-info-label">ID QRIS</div><div id="qrTransactionIdDisplay" class="qr-info-value" style="color:var(--primary-red)">—</div></td></tr>
+                <tr><td><div class="qr-info-label">BERLAKU</div><div id="qrExpiredInfo" class="qr-info-value" style="color:var(--success-green)">15:00</div></td></tr>
             </table>
-
-            <div class="qris-box" id="qrisWrapper">
-                <div class="qr-loading" id="qrLoading"><div class="spinner" style="width:30px; height:30px; border:2px solid #333; border-top-color:red; border-radius:50%; animation: orbit-rotate 1s linear infinite;"></div></div>
-                <img id="qrisImg" src="" alt="QRIS" style="display:none;" onload="onQrLoaded()">
+            <div style="background: #1a1a1a; border-radius: 15px; padding: 15px; margin: 15px auto; width: fit-content; border: 2px solid var(--primary-red); position: relative; min-width: 210px; min-height: 210px; display: flex; align-items: center; justify-content: center;">
+                <div id="qrLoading" style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: #1a1a1a; border-radius: 15px;"><div style="width:30px; height:30px; border:2px solid #333; border-top-color:red; border-radius:50%; animation: orbit-spin 1s linear infinite;"></div></div>
+                <img id="qrisImg" src="" alt="QRIS" style="display:none; width: 200px; border-radius: 8px; background: white; padding: 10px;" onload="onQrLoaded()">
             </div>
-            <div class="amount-highlight"><span>TOTAL BAYAR</span><br><strong id="totalAmountDisplay">Rp 0</strong></div>
-            <p style="font-size:10px; color:#8e959e; margin-bottom:15px;">Sudah termasuk kode unik <b id="uniqueCodeDisplay" style="color:var(--primary-red)">Rp 0</b></p>
-            <button class="btn-buy" id="statusBayarBtn" disabled style="background:#242a32;">MENUNGGU PEMBAYARAN...</button>
+            <div style="background: #0b0d0f; border: 1.5px dashed var(--primary-red); border-radius: 12px; padding: 12px; text-align: center; margin: 10px 0;"><span>TOTAL BAYAR</span><br><strong id="totalAmountDisplay" style="color: var(--primary-red); font-size: 20px;">Rp 0</strong></div>
+            <button class="btn-buy" disabled style="background:#242a32;">MENUNGGU PEMBAYARAN...</button>
         </div>
         <div id="step-success" style="display:none; text-align:center;">
             <div style="font-size:40px; margin-bottom:10px;">✅</div><h3 style="color:var(--success-green); margin-bottom:5px;">PEMBAYARAN LUNAS!</h3>
             <div style="font-size:11px; color:#8e959e; margin-bottom:15px; line-height:1.6; background:#0b0d0f; padding:12px; border-radius:12px; border:1.5px solid #242a32; text-align:left;">
                 <div>ID TRX: <b id="successTrxId" style="color:white; font-family:monospace;">—</b></div><div>EMAIL: <b id="successEmail" style="color:white;">—</b></div>
             </div>
-            <div class="data-box" id="finalData"></div>
+            <div id="finalData" class="data-box"></div>
             <button class="btn-buy" style="background:var(--success-green); margin-top:15px;" onclick="copyData('finalData')">SALIN AKUN</button>
-            <button class="btn-buy" style="background:#242a32; margin-top:8px;" onclick="location.reload()">TUTUP</button>
+            <button class="btn-buy" style="background:#333; margin-top:10px;" onclick="location.reload()">TUTUP</button>
         </div>
-        <button id="btnClose" onclick="closeModal()" style="background:none; border:none; color:#888; width:100%; margin-top:20px; cursor:pointer; font-size:11px; font-weight:bold;">KEMBALI</button>
+        <button onclick="closeModal()" style="background:none; border:none; color:#888; width:100%; margin-top:20px; cursor:pointer; font-size:11px;">KEMBALI</button>
     </div>
 </div>
 
 <div id="invoiceModal" class="modal">
     <div class="modal-content">
         <h2 style="color:var(--primary-red); margin-bottom:15px;">Cek Pesanan</h2>
-        <input type="text" id="inputTrxId" class="sheet-input" placeholder="Masukkan ID Transaksi">
+        <input type="text" id="inputTrxId" class="sheet-input" placeholder="Masukkan ID Transaksi (Contoh: TRX-123)">
         <button class="btn-buy" onclick="cariInvoice()">CARI</button>
         <div id="invoiceResult"></div>
         <button onclick="closeInvoiceModal()" style="background:none; border:none; color:#8e959e; width:100%; margin-top:15px; cursor:pointer; font-size:12px;">TUTUP</button>
@@ -189,164 +149,121 @@
     const BASE_URL = "https://toko-tama-default-rtdb.asia-southeast1.firebasedatabase.app/";
     const CASHIFY_QRIS_ID = "0f3aedc9-d0c2-4d18-8922-8d54e7e46da9";
     const produkCache = {};
-    let selectedProdId, selectedAkunId, selectedDataAkun, hargaFix, cashifyTransactionId, pollingInterval = null, countdownInterval = null;
+    let selectedProdId, selectedAkunId, selectedDataAkun, hargaFix, cashifyTransactionId, pollingInterval;
 
     async function initWeb() {
         try {
             const res = await fetch(`${BASE_URL}owner_config.json`);
             const config = await res.json();
-            
             if (config) {
-                const primary = config.colors.primary;
-                const card = config.colors.card;
-                const bg = config.bg;
-                const pp = config.pp;
-                const name = config.storeName || "MY STORE";
-
+                document.body.style.backgroundImage = `url('${config.bg}')`;
+                document.getElementById('storeNameLabel').innerText = config.storeName || "MY STORE";
+                document.getElementById('loaderTextDisplay').innerText = config.storeName || "MY STORE";
+                if(config.pp) document.getElementById('storePP').src = config.pp;
                 const style = document.createElement('style');
-                style.innerHTML = `
-                    body { background-image: url('${bg}') !important; background-size: cover !important; background-attachment: fixed !important; }
-                    :root { --primary-red: ${primary} !important; }
-                    .stat-val, .price, .store-name, #payTitle, #payPrice, .amount-highlight strong, .qr-info-value, #uniqueCodeDisplay, .loader-text { color: ${primary} !important; }
-                    .profile-img, .prod-logo-container, .qris-box { border-color: ${primary} !important; }
-                    .btn-buy, .toast, .btn-cek-nav:hover, .stock-tag.tag-red { background-color: ${primary} !important; color: #ffffff !important; }
-                    .stat-box, .btn-cek-nav, .card, .modal-content, .qr-info-card, .sheet-input, .qr-info-table td { background: ${card} !important; backdrop-filter: blur(20px) !important; border: 1px solid rgba(255,255,255,0.1) !important; }
-                    .sheet-input:focus { border-color: ${primary} !important; }
-                    .orbit-ball { background-color: ${primary} !important; box-shadow: 0 0 15px ${primary} !important; }
-                `;
+                style.innerHTML = `:root { --primary-red: ${config.colors.primary} !important; } .stat-box, .btn-cek-nav, .card, .modal-content, .qr-info-table td { background: ${config.colors.card} !important; backdrop-filter: blur(15px); }`;
                 document.head.appendChild(style);
-                
-                document.getElementById('storeNameLabel').innerText = name;
-                document.getElementById('loaderText').innerText = name;
-                if(pp) document.querySelector('.profile-img img').src = pp;
             }
             await fetchProducts();
-            setTimeout(() => {
-                const pre = document.getElementById('preloader');
-                pre.classList.add('fade-out');
-                setTimeout(() => { pre.style.display = 'none'; }, 800);
-            }, 600);
-        } catch (e) { document.getElementById('preloader').style.display = 'none'; }
+            setTimeout(() => { document.getElementById('preloader').classList.add('fade-out'); }, 1200);
+        } catch (e) { document.getElementById('preloader').style.display='none'; }
     }
 
     async function fetchProducts() {
         try {
             const [resP, resS] = await Promise.all([fetch(`${BASE_URL}produk.json`), fetch(`${BASE_URL}stok_akun.json`)]);
             const dataP = await resP.json(); const dataS = await resS.json() || {};
-            if (!dataP) return;
             const container = document.getElementById('productList'); container.innerHTML = '';
-            let totalUnitReady = 0; let totalProdukReady = 0;
-            const productKeys = Object.keys(dataP);
-            productKeys.forEach(id => {
-                const listStok = dataS[id] ? Object.keys(dataS[id]) : []; 
-                const jmlStok = listStok.length;
-                totalUnitReady += jmlStok; if (jmlStok > 0) totalProdukReady++;
+            let uReady = 0, pReady = 0;
+            Object.keys(dataP).forEach(id => {
+                const stk = dataS[id] ? Object.keys(dataS[id]) : [];
+                const jml = stk.length; uReady += jml; if(jml>0) pReady++;
                 produkCache[id] = { nama: dataP[id].nama, harga: dataP[id].harga, stok: dataS[id] || {}, logo: dataP[id].logo, terjual: dataP[id].terjual || 0 };
-                const hrg = "Rp " + parseInt(String(dataP[id].harga).replace(/\D/g, '')).toLocaleString('id-ID');
-                container.innerHTML += `
-                    <div class="card" onclick="${jmlStok === 0 ? "showToast('Stok habis!')" : `openPayment('${id}')`}">
-                        <div class="prod-logo-container"><img src="${dataP[id].logo || 'https://via.placeholder.com/55'}"></div>
-                        <div class="prod-details">
-                            <div class="card-title">${dataP[id].nama}</div>
-                            <div class="price">${hrg}</div>
-                            <div class="terjual-info">🔥 ${produkCache[id].terjual} Terjual</div>
-                        </div>
-                        <div class="stock-tag ${jmlStok === 0 ? 'tag-red' : 'tag-green'}">${jmlStok === 0 ? 'Habis' : jmlStok + ' Ready'}</div>
-                    </div>`;
+                const hrg = parseInt(String(dataP[id].harga).replace(/\D/g, '')).toLocaleString('id-ID');
+                container.innerHTML += `<div class="card" onclick="${jml === 0 ? "showToast('Stok habis!')" : `openPayment('${id}')`}"><div class="prod-logo-container"><img src="${dataP[id].logo}"></div><div style="flex-grow:1;"><div class="card-title">${dataP[id].nama}</div><div class="price">Rp ${hrg}</div><div style="font-size:10px; color:#8e959e;">🔥 ${dataP[id].terjual || 0} Terjual</div></div><div class="stock-tag ${jml===0?'tag-red':'tag-green'}">${jml===0?'Habis':jml+' Ready'}</div></div>`;
             });
-            document.getElementById('totalProd').innerText = productKeys.length;
-            document.getElementById('totalStok').innerText = totalUnitReady;
-            document.getElementById('totalTersedia').innerText = totalProdukReady;
-        } catch (e) {}
+            document.getElementById('totalProd').innerText = Object.keys(dataP).length;
+            document.getElementById('totalStok').innerText = uReady;
+            document.getElementById('totalTersedia').innerText = pReady;
+        } catch(e) {}
     }
 
     function openPayment(id) {
         const p = produkCache[id]; const list = Object.keys(p.stok);
         selectedProdId = id; selectedAkunId = list[0]; selectedDataAkun = p.stok[selectedAkunId];
         hargaFix = parseInt(String(p.harga).replace(/\D/g, ''));
-        document.getElementById('payTitle').innerText = p.nama; document.getElementById('payPrice').innerText = "Rp " + hargaFix.toLocaleString('id-ID');
+        document.getElementById('payTitle').innerText = p.nama;
+        document.getElementById('payPrice').innerText = "Rp " + hargaFix.toLocaleString('id-ID');
         document.getElementById('paymentModal').style.display = 'block';
     }
 
     async function tampilkanQRIS() {
-        const n = document.getElementById('buyerName').value.trim(); const e = document.getElementById('buyerEmail').value.trim();
-        if (!n || !e) return showToast("Isi data!");
-        const btn = document.getElementById('btnLanjutkan'); btn.disabled = true; btn.innerHTML = 'Memproses...';
+        const n = document.getElementById('buyerName').value;
+        const e = document.getElementById('buyerEmail').value;
+        if(!n || !e) return showToast("Data belum lengkap!");
+        const btn = document.getElementById('btnLanjutkan'); btn.disabled = true; btn.innerText = "Memproses...";
         try {
-            const res = await fetch('/api/generate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: CASHIFY_QRIS_ID, amount: hargaFix, useUniqueCode: true, packageIds: ["id.dana"], expiredInMinutes: 15 }) });
+            const res = await fetch('/api/generate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: CASHIFY_QRIS_ID, amount: hargaFix, useUniqueCode: true }) });
             const json = await res.json();
-            const { qr_string, transactionId, totalAmount, uniqueNominal } = json.data;
+            const { qr_string, transactionId, totalAmount } = json.data;
             cashifyTransactionId = transactionId;
-            document.getElementById('qrTransactionIdDisplay').innerText = transactionId.slice(0, 10) + "...";
-            startCountdown(15 * 60);
-            document.getElementById('step-input').style.display = 'none'; document.getElementById('step-qris').style.display = 'block';
-            document.getElementById('qrisImg').src = `https://larabert-qrgen.hf.space/v1/create-qr-code?size=500x500&style=2&color=000000&data=${encodeURIComponent(qr_string)}`;
+            document.getElementById('qrisImg').src = `https://larabert-qrgen.hf.space/v1/create-qr-code?data=${encodeURIComponent(qr_string)}`;
             document.getElementById('totalAmountDisplay').innerText = "Rp " + totalAmount.toLocaleString('id-ID');
-            document.getElementById('uniqueCodeDisplay').innerText = "Rp " + (uniqueNominal || 0);
+            document.getElementById('qrTransactionIdDisplay').innerText = transactionId.slice(0, 15) + "...";
+            document.getElementById('step-input').style.display = 'none';
+            document.getElementById('step-qris').style.display = 'block';
             mulaiPolling();
-        } catch (err) { showToast("Gagal QRIS"); btn.disabled = false; }
+        } catch(err) { showToast("Gagal muat QRIS"); btn.disabled = false; btn.innerText = "Lanjutkan"; }
     }
-
-    function startCountdown(duration) {
-        if (countdownInterval) clearInterval(countdownInterval);
-        let timer = duration, m, s;
-        countdownInterval = setInterval(() => {
-            m = parseInt(timer / 60, 10); s = parseInt(timer % 60, 10);
-            document.getElementById('qrExpiredInfo').innerText = (m < 10 ? "0" + m : m) + ":" + (s < 10 ? "0" + s : s);
-            if (--timer < 0) { clearInterval(countdownInterval); document.getElementById('qrExpiredInfo').innerText = "EXPIRED"; }
-        }, 1000);
-    }
-
-    function onQrLoaded() { document.getElementById('qrLoading').style.display = 'none'; document.getElementById('qrisImg').style.display = 'block'; }
 
     function mulaiPolling() {
-        if (pollingInterval) clearInterval(pollingInterval);
         pollingInterval = setInterval(async () => {
-            try {
-                const res = await fetch('/api/check-status', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ transactionId: cashifyTransactionId }) });
-                const json = await res.json(); if (json.data?.status?.toLowerCase() === 'paid') { clearInterval(pollingInterval); clearInterval(countdownInterval); prosesLunas(); }
-            } catch (e) {}
+            const res = await fetch('/api/check-status', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ transactionId: cashifyTransactionId }) });
+            const json = await res.json();
+            if (json.data?.status === 'paid') { clearInterval(pollingInterval); prosesLunas(); }
         }, 5000);
     }
 
     async function prosesLunas() {
-        const sekarang = new Date();
-        const trxId = `TRX-${Math.floor(Math.random() * 10000000)}`;
-        const emailUser = document.getElementById('buyerEmail').value;
+        const trxId = `TRX-${Math.floor(100000 + Math.random() * 900000)}`;
+        const emailU = document.getElementById('buyerEmail').value;
         try {
             await fetch(`${BASE_URL}stok_akun/${selectedProdId}/${selectedAkunId}.json`, { method: 'DELETE' });
-            await fetch(`${BASE_URL}produk/${selectedProdId}.json`, { method: 'PATCH', body: JSON.stringify({ terjual: (produkCache[selectedProdId].terjual || 0) + 1 }) });
-            await fetch(`${BASE_URL}transaksi/${trxId}.json`, {
-                method: 'PUT', body: JSON.stringify({ 
-                    produk: document.getElementById('payTitle').innerText, 
-                    data: selectedDataAkun, nama: document.getElementById('buyerName').value, 
-                    email: emailUser, harga: hargaFix, 
-                    tanggal: sekarang.toLocaleString('id-ID'), id_trx: trxId 
-                })
-            });
-            // --- TAMPILKAN TRX & EMAIL DI LAYAR SUKSES ---
+            await fetch(`${BASE_URL}transaksi/${trxId}.json`, { method: 'PUT', body: JSON.stringify({ data: selectedDataAkun, id_trx: trxId, email: emailU, status: 'LUNAS' }) });
             document.getElementById('successTrxId').innerText = trxId;
-            document.getElementById('successEmail').innerText = emailUser;
+            document.getElementById('successEmail').innerText = emailU;
             document.getElementById('finalData').innerText = selectedDataAkun;
-            
             document.getElementById('step-qris').style.display = 'none';
             document.getElementById('step-success').style.display = 'block';
-            showToast("Pembayaran Berhasil!", "success");
-        } catch (e) { showToast("Gagal Simpan!"); }
+            showToast("Berhasil!", true);
+        } catch(e) { showToast("Gagal simpan transaksi"); }
     }
 
-    function closeModal() { if (pollingInterval) clearInterval(pollingInterval); if (countdownInterval) clearInterval(countdownInterval); document.getElementById('paymentModal').style.display = 'none'; document.getElementById('step-input').style.display='block'; document.getElementById('step-qris').style.display='none'; }
-    function closeInvoiceModal() { document.getElementById('invoiceModal').style.display = 'none'; }
-    function openInvoiceModal() { document.getElementById('invoiceModal').style.display = 'block'; }
+    // --- FIX CARI INVOICE (TANPA UBAH STRUKTUR) ---
     async function cariInvoice() {
-        const id = document.getElementById('inputTrxId').value.trim().toUpperCase();
-        const res = await fetch(`${BASE_URL}transaksi/${id}.json`); const d = await res.json();
-        const r = document.getElementById('invoiceResult');
-        if (!d) { r.innerHTML = '<p style="color:red; font-size:11px; margin-top:10px;">Tidak ditemukan.</p>'; return; }
-        r.innerHTML = `<div class="data-box" id="invData">${d.data}</div><button class="btn-buy" style="background:var(--success-green); margin-top:10px; padding:10px;" onclick="copyData('invData')">SALIN DATA</button>`;
+        const idInput = document.getElementById('inputTrxId').value.trim(); // ID sensitif, jangan dipaksa UpperCase
+        const resBox = document.getElementById('invoiceResult');
+        if(!idInput) return showToast("Masukkan ID!");
+        
+        resBox.innerHTML = '<p style="font-size:11px; color:#888; margin-top:10px;">Mencari...</p>';
+        
+        try {
+            const res = await fetch(`${BASE_URL}transaksi/${idInput}.json`);
+            const d = await res.json();
+            if (!d) { 
+                resBox.innerHTML = '<p style="color:red; font-size:11px; margin-top:10px;">ID Tidak ditemukan. Pastikan format benar (Contoh: TRX-123456)</p>'; 
+                return; 
+            }
+            resBox.innerHTML = `<div class="data-box" id="invData">${d.data}</div><button class="btn-buy" style="background:var(--success-green); margin-top:10px; padding:10px;" onclick="copyData('invData')">SALIN AKUN</button>`;
+        } catch (e) { resBox.innerHTML = '<p style="color:red; font-size:11px; margin-top:10px;">Gagal mengambil data.</p>'; }
     }
-    function copyData(id) { const t = document.getElementById(id).innerText; navigator.clipboard.writeText(t).then(() => showToast("Disalin!", "success")); }
-    function showToast(m, s=false) { const t = document.getElementById('errorToast'); t.innerText = m; t.className = "toast" + (s?" success":"") + " show"; setTimeout(() => t.classList.remove('show'), 3000); }
+
+    function onQrLoaded() { document.getElementById('qrLoading').style.display = 'none'; document.getElementById('qrisImg').style.display = 'block'; }
+    function closeModal() { clearInterval(pollingInterval); document.getElementById('paymentModal').style.display = 'none'; document.getElementById('step-input').style.display='block'; document.getElementById('step-qris').style.display='none'; }
+    function openInvoiceModal() { document.getElementById('invoiceModal').style.display = 'block'; }
+    function closeInvoiceModal() { document.getElementById('invoiceModal').style.display = 'none'; }
+    function showToast(m, s=false) { const t = document.getElementById('errorToast'); t.innerText = m; t.className = s ? "toast success show" : "toast show"; setTimeout(() => t.classList.remove('show'), 3000); }
+    function copyData(id) { navigator.clipboard.writeText(document.getElementById(id).innerText); showToast("Disalin!", true); }
 
     initWeb();
 </script>
