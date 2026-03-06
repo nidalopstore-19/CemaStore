@@ -24,7 +24,7 @@
                             background-size: cover !important; 
                             background-attachment: fixed !important; 
                         }
-                        /* PAKSA WARNA UTAMA */
+                        /* PAKSA WARNA UTAMA DARI DATABASE */
                         :root {
                             --primary-red: ${primary} !important;
                         }
@@ -39,7 +39,7 @@
                             color: #ffffff !important;
                         }
                         
-                        /* WARNA KARTU & MODAL (GLASS) */
+                        /* WARNA KARTU & MODAL (GLASS) DARI DATABASE */
                         .stat-box, .btn-cek-nav, .card, .modal-content, .qr-info-card, .sheet-input { 
                             background: ${card} !important; 
                             backdrop-filter: blur(20px) !important;
@@ -63,7 +63,8 @@
 
     <style>
         :root {
-            --primary-red: #ff0000; 
+            /* WARNA AWAL DIUBAH JADI ABU-ABU */
+            --primary-red: #555555; 
             --dark-bg: #0b0d0f;
             --card-bg: rgba(22, 26, 30, 0.7);
             --success-green: #10b981;
@@ -73,7 +74,8 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
         body { 
             background-color: var(--dark-bg);
-            background-image: radial-gradient(circle at top right, rgba(255, 0, 0, 0.1), transparent 300px);
+            /* Gradasi diubah jadi abu-abu transparan */
+            background-image: radial-gradient(circle at top right, rgba(85, 85, 85, 0.15), transparent 300px);
             background-attachment: fixed;
             color: #ffffff; 
             padding: 15px; 
@@ -87,7 +89,8 @@
         .toast.success { background: var(--success-green); }
 
         .header { text-align: center; margin-bottom: 20px; padding-top: 10px; }
-        .profile-img { width: 75px; height: 75px; border-radius: 50%; border: 2px solid var(--primary-red); margin: 0 auto 10px; overflow: hidden; box-shadow: 0 0 15px rgba(255, 0, 0, 0.3); }
+        /* Border diubah jadi abu-abu */
+        .profile-img { width: 75px; height: 75px; border-radius: 50%; border: 2px solid var(--primary-red); margin: 0 auto 10px; overflow: hidden; box-shadow: 0 0 15px rgba(85, 85, 85, 0.3); }
         .store-name { font-size: 1.3rem; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; }
 
         .stats-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
@@ -111,7 +114,7 @@
         .terjual-info { font-size: 10px; color: #8e959e; font-weight: bold; margin-top: 2px; }
 
         .stock-tag { position: absolute; top: 15px; right: 15px; font-size: 9px; font-weight: 800; padding: 3px 8px; border-radius: 8px; text-transform: uppercase; }
-        .tag-red { background: rgba(255, 0, 0, 0.1); color: var(--primary-red); border: 1px solid var(--primary-red); }
+        .tag-red { background: rgba(85, 85, 85, 0.1); color: var(--primary-red); border: 1px solid var(--primary-red); }
         .tag-green { background: rgba(16, 185, 129, 0.1); color: var(--success-green); border: 1px solid var(--success-green); }
 
         .modal { display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); }
@@ -363,11 +366,11 @@
         if (!id) return;
         const res = await fetch(`${BASE_URL}transaksi/${id}.json`); const d = await res.json();
         const r = document.getElementById('invoiceResult');
-        if (!d) { r.innerHTML = '<p style="color:red; font-size:11px; margin-top:10px;">Tidak ditemukan.</p>'; return; }
-        r.innerHTML = `<div class="data-box" id="invData">${d.data}</div><button class="btn-buy" style="background:var(--success-green); margin-top:10px; padding:10px;" onclick="copyData('invData')">SALIN DATA</button>`;
+        if (!d) { r.innerHTML = '<p style="color:var(--primary-red); font-size:11px; margin-top:10px; font-weight:800;">DATA TIDAK DITEMUKAN!</p>'; return; }
+        r.innerHTML = `<div class="data-box" id="invData">${d.data}</div><button class="btn-buy" style="background:var(--success-green); margin-top:10px; padding:10px; box-shadow:none;" onclick="copyData('invData')">SALIN AKUN</button>`;
     }
 
-    function copyData(elementId) { const txt = document.getElementById(elementId).innerText; navigator.clipboard.writeText(txt).then(() => showToast("Disalin!", "success")); }
+    function copyData(elementId) { const txt = document.getElementById(elementId).innerText; navigator.clipboard.writeText(txt).then(() => showToast("Tersalin ke Clipboard!", "success")); }
 
     fetchProducts();
 </script>
