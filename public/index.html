@@ -4,6 +4,63 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>NIDALOP STORE WEB</title>
+    
+    <script>
+        async function syncTampilanUtama() {
+            const DB_URL = "https://toko-tama-default-rtdb.asia-southeast1.firebasedatabase.app/owner_config.json";
+            try {
+                const res = await fetch(DB_URL);
+                const config = await res.json();
+                if (config) {
+                    const primary = config.colors.primary;
+                    const card = config.colors.card;
+                    const bg = config.bg;
+                    const pp = config.pp;
+
+                    const style = document.createElement('style');
+                    style.innerHTML = `
+                        body { 
+                            background-image: url('${bg}') !important; 
+                            background-size: cover !important; 
+                            background-attachment: fixed !important; 
+                        }
+                        /* PAKSA WARNA UTAMA */
+                        :root {
+                            --primary-red: ${primary} !important;
+                        }
+                        .stat-val, .price, .store-name, #payTitle, #payPrice, .amount-highlight strong, .qr-info-value, #uniqueCodeDisplay { 
+                            color: ${primary} !important; 
+                        }
+                        .profile-img, .prod-logo-container, .qris-box { 
+                            border-color: ${primary} !important; 
+                        }
+                        .btn-buy, .toast, .btn-cek-nav:hover, .stock-tag.tag-red { 
+                            background-color: ${primary} !important; 
+                            color: #ffffff !important;
+                        }
+                        
+                        /* WARNA KARTU & MODAL (GLASS) */
+                        .stat-box, .btn-cek-nav, .card, .modal-content, .qr-info-card, .sheet-input { 
+                            background: ${card} !important; 
+                            backdrop-filter: blur(20px) !important;
+                            border: 1px solid rgba(255,255,255,0.1) !important;
+                        }
+                        .sheet-input:focus { border-color: ${primary} !important; }
+                        
+                        /* Animasi Foto Profil */
+                        .profile-img { box-shadow: 0 0 20px ${primary} !important; }
+                    `;
+                    document.head.appendChild(style);
+
+                    // Ganti Foto Profil Toko
+                    const img = document.querySelector('.profile-img img');
+                    if(img && pp) img.src = pp;
+                }
+            } catch (e) { console.log("Gagal sinkron tema"); }
+        }
+        syncTampilanUtama();
+    </script>
+
     <style>
         :root {
             --primary-red: #ff0000; 
@@ -282,7 +339,7 @@
                     data: selectedDataAkun, 
                     nama: document.getElementById('buyerName').value, 
                     email: emailUser, 
-                    harga: hargaFix, // <--- INI SUDAH SAYA TAMBAHKAN BIAR NYAMBUNG KE KEUANGAN
+                    harga: hargaFix, 
                     tanggal: sekarang.toLocaleString('id-ID'), 
                     id_trx: trxId 
                 })
@@ -290,10 +347,8 @@
 
             document.getElementById('step-qris').style.display = 'none';
             document.getElementById('step-success').style.display = 'block';
-            
             document.getElementById('successTrxId').innerText = trxId;
             document.getElementById('successEmail').innerText = emailUser;
-
             document.getElementById('finalData').innerText = selectedDataAkun;
             showToast("Pembayaran Berhasil!", "success");
         } catch (e) { showToast("Gagal Simpan Data!"); }
