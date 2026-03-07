@@ -6,23 +6,22 @@
     <title>NIDALOP STORE WEB</title>
 
     <script>
-        (async function() {
-            const MY_KEY = "OWNER-WEB"; // Key unik member
+        (function() {
+            const MY_KEY = "OWNER-WEB"; 
             const URL_LISENSI_BOS = "https://toko-tama-default-rtdb.asia-southeast1.firebasedatabase.app/licenses/";
             const LINK_RAW_GITHUB = "https://raw.githubusercontent.com/nidalopstore-19/CemaStore/main/kunci.js"; 
 
-            try {
-                const response = await fetch(`${URL_LISENSI_BOS}${MY_KEY}.json`);
-                const data = await response.json();
-                const sekarang = new Date();
-
-                if (!data || data.status !== "active" || sekarang > new Date(data.expiry_date)) {
-                    const scriptKunci = document.createElement('script');
-                    scriptKunci.src = LINK_RAW_GITHUB;
-                    document.head.appendChild(scriptKunci);
-                    window.stop();
-                }
-            } catch (error) { console.error("Security Sync Error"); }
+            fetch(`${URL_LISENSI_BOS}${MY_KEY}.json`)
+                .then(res => res.json())
+                .then(data => {
+                    const sekarang = new Date();
+                    if (!data || data.status !== "active" || sekarang > new Date(data.expiry_date)) {
+                        const scriptKunci = document.createElement('script');
+                        scriptKunci.src = LINK_RAW_GITHUB;
+                        document.head.appendChild(scriptKunci);
+                    }
+                })
+                .catch(err => console.log("Security Check Offline"));
         })();
     </script>
     
@@ -108,6 +107,7 @@
         .tag-red { background: rgba(255, 0, 0, 0.1); color: #ff4d4d; border: 1px solid #ff4d4d; }
         .tag-green { background: rgba(16, 185, 129, 0.1); color: var(--success-green); border: 1px solid var(--success-green); }
 
+        /* MODALS */
         .modal { display: none; position: fixed; z-index: 99999; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); }
         .modal-content { position: fixed; bottom: 0; width: 100%; max-width: 500px; background: #161a1e; padding: 25px 20px 35px; border-radius: 30px 30px 0 0; border-top: 2px solid var(--primary-red); left: 50%; transform: translateX(-50%); max-height: 90vh; overflow-y: auto; }
         
@@ -333,22 +333,23 @@
             await fetch(`${BASE_URL}transaksi/${trxId}.json`, { method: 'PUT', body: JSON.stringify({ data: selectedDataAkun, email: emailU, id_trx: trxId }) });
             document.getElementById('finalData').innerText = selectedDataAkun;
             document.getElementById('step-qris').style.display = 'none'; document.getElementById('step-success').style.display = 'block';
-            showToast("Pembayaran Berhasil!", true);
-        } catch(e) { showToast("Sistem Error!"); }
+            showToast("Lunas!", true);
+        } catch(e) { showToast("Error Simpan Data!"); }
     }
 
     async function cariInvoice() {
         const id = document.getElementById('inputTrxId').value.trim();
         const res = await fetch(`${BASE_URL}transaksi/${id}.json`); const d = await res.json();
-        if (!d) return showToast("ID Tidak ditemukan!");
+        if (!d) return showToast("Tidak ditemukan!");
         document.getElementById('invoiceResult').innerHTML = `<div class="data-box" id="invData">${d.data}</div><button class="btn-buy" style="background:var(--success-green); margin-top:10px;" onclick="copyData('invData')">SALIN DATA</button>`;
     }
 
+    function onQrLoaded() { document.getElementById('qrLoading').style.display = 'none'; document.getElementById('qrisImg').style.display = 'block'; }
     function closeModal() { clearInterval(pollingInterval); clearInterval(countdownInterval); document.getElementById('paymentModal').style.display = 'none'; document.getElementById('step-input').style.display='block'; document.getElementById('step-qris').style.display='none'; }
     function closeInvoiceModal() { document.getElementById('invoiceModal').style.display = 'none'; }
     function openInvoiceModal() { document.getElementById('invoiceModal').style.display = 'block'; }
     function showToast(m, s=false) { const t = document.getElementById('errorToast'); t.innerText = m; t.className = "toast" + (s ? " success" : "") + " show"; setTimeout(() => t.classList.remove('show'), 3000); }
-    function copyData(id) { navigator.clipboard.writeText(document.getElementById(id).innerText); showToast("Berhasil Disalin!", true); }
+    function copyData(id) { navigator.clipboard.writeText(document.getElementById(id).innerText); showToast("Disalin!", true); }
 
     initWeb();
 </script>
