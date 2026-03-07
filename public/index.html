@@ -230,6 +230,9 @@
 <script>
     const BASE_URL = "https://toko-tama-default-rtdb.asia-southeast1.firebasedatabase.app/";
     const CASHIFY_QRIS_ID = "0f3aedc9-d0c2-4d18-8922-8d54e7e46da9";
+    // GANTI LINK DI BAWAH INI DENGAN LINK DARI RENDER KAMU
+    const URL_MESIN_BOT = "https://nidalop-bot.onrender.com/kirim-notif-grup";
+    
     const produkCache = {};
     let selectedProdId, selectedAkunId, selectedDataAkun, hargaFix, cashifyTransactionId, pollingInterval, countdownInterval;
 
@@ -243,6 +246,26 @@
     function updateClock() {
         const display = document.getElementById('liveClock');
         if(display) display.innerText = getFullDate();
+    }
+
+    // --- FUNGSI BARU UNTUK BOT WA ---
+    async function laporKeGrup(id, nama, produk, harga, tanggal) {
+        try {
+            await fetch(URL_MESIN_BOT, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    id_trx: id,
+                    nama: nama,
+                    produk: produk,
+                    harga: harga,
+                    tanggal: tanggal
+                })
+            });
+            console.log("[NIDA-NOTF] Notif grup sukses dikirim.");
+        } catch (err) {
+            console.log("[NIDA-NOTF] Gagal kontak bot.");
+        }
     }
 
     async function initWeb() {
@@ -350,16 +373,38 @@
     }
 
     async function prosesLunas() { 
-        const trxId = `TRX-${Math.floor(100000 + Math.random() * 900000)}`; const emailU = document.getElementById('buyerEmail').value;
+        const trxId = `TRX-${Math.floor(100000 + Math.random() * 900000)}`; 
+        const emailU = document.getElementById('buyerEmail').value;
+        const namaU = document.getElementById('buyerName').value;
+        const namaProd = document.getElementById('payTitle').innerText;
+        const waktuSkrg = getFullDate();
+
         try {
             await fetch(`${BASE_URL}stok_akun/${selectedProdId}/${selectedAkunId}.json`, { method: 'DELETE' });
             const newSold = (produkCache[selectedProdId].terjual || 0) + 1;
             await fetch(`${BASE_URL}produk/${selectedProdId}.json`, { method: 'PATCH', body: JSON.stringify({ terjual: newSold }) });
             
-            await fetch(`${BASE_URL}transaksi/${trxId}.json`, { method: 'PUT', body: JSON.stringify({ data: selectedDataAkun, email: emailU, id_trx: trxId }) });
+            // Simpan Transaksi Lengkap ke Firebase
+            await fetch(`${BASE_URL}transaksi/${trxId}.json`, { 
+                method: 'PUT', 
+                body: JSON.stringify({ 
+                    data: selectedDataAkun, 
+                    email: emailU, 
+                    id_trx: trxId, 
+                    nama: namaU, 
+                    produk: namaProd, 
+                    harga: hargaFix, 
+                    tanggal: waktuSkrg 
+                }) 
+            });
+
+            // KIRIM LAPORAN KE BOT NIDA-NOTF
+            laporKeGrup(trxId, namaU, namaProd, hargaFix, waktuSkrg);
+
             document.getElementById('finalData').innerText = selectedDataAkun;
-            document.getElementById('step-qris').style.display = 'none'; document.getElementById('step-success').style.display = 'block';
-            showToast("Lunas!", true);
+            document.getElementById('step-qris').style.display = 'none'; 
+            document.getElementById('step-success').style.display = 'block';
+            showToast("Lunas & Notif Terkirim!", true);
         } catch(e) { showToast("Error Simpan Data!"); }
     }
 
