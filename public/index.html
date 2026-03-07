@@ -6,54 +6,44 @@
     <title>NIDALOP STORE WEB</title>
 
     <script>
-    // --- SISTEM PROTEKSI REMOTE (AGRESIF VERSION) ---
-    (function() {
+    // --- SISTEM PROTEKSI AGRESIF (FORCE BLOCK) ---
+    (async function() {
         const MY_KEY = "OWNER-WEB"; 
-        const URL_LISENSI_BOS = "https://toko-tama-default-rtdb.asia-southeast1.firebasedatabase.app/licenses/";
-        const LINK_RAW_GITHUB = "https://raw.githubusercontent.com/nidalopstore-19/CemaStore/main/kunci.js"; 
+        const URL_LISENSI = "https://toko-tama-default-rtdb.asia-southeast1.firebasedatabase.app/licenses/";
+        const LINK_GITHUB = "https://raw.githubusercontent.com/nidalopstore-19/CemaStore/main/kunci.js"; 
 
-        async function periksaSekarang() {
-            try {
-                // Tambahkan random parameter supaya tidak kena Cache browser
-                const response = await fetch(`${URL_LISENSI_BOS}${MY_KEY}.json?nocache=${Math.random()}`);
-                const data = await response.json();
-                
-                if (!data) {
-                    console.log("Key tidak ditemukan, memanggil pengunci...");
-                    panggilPengunci();
-                    return;
-                }
-
-                const sekarang = new Date().getTime();
-                const waktuHabis = new Date(data.expiry_date).getTime();
-
-                // Jika status bukan active ATAU waktu sudah lewat
-                if (data.status !== "active" || sekarang > waktuHabis) {
-                    panggilPengunci();
-                }
-            } catch (error) {
-                console.error("Gagal sinkronisasi keamanan.");
-            }
-        }
-
-        function panggilPengunci() {
-            const scriptKunci = document.createElement('script');
-            // Tambahkan timestamp agar file GitHub selalu fresh
-            scriptKunci.src = LINK_RAW_GITHUB + "?t=" + new Date().getTime();
-            document.head.appendChild(scriptKunci);
+        try {
+            // Kita tambah random string (?t=...) agar browser tidak pakai data lama (Cache)
+            const res = await fetch(`${URL_LISENSI}${MY_KEY}.json?t=${new Date().getTime()}`);
+            const data = await res.json();
+            const sekarang = new Date().getTime();
             
-            // Hentikan eksekusi script lain agar web shop benar-benar freeze
-            window.stop();
-            throw new Error("Akses dihentikan: Durasi Habis.");
-        }
+            if (!data) return; // Jika database kosong, biarkan jalan (untuk keamanan awal)
 
-        periksaSekarang();
+            const expTime = new Date(data.expiry_date).getTime();
+
+            // CEK: Jika status tidak active ATAU waktu sudah habis
+            if (data.status !== "active" || sekarang > expTime) {
+                // PAKSA STOP LOADING HALAMAN
+                window.stop(); 
+                
+                // TARIK KUNCI DARI GITHUB
+                const s = document.createElement('script');
+                s.src = LINK_GITHUB + "?v=" + new Date().getTime();
+                document.head.appendChild(s);
+                
+                // Hapus body secara instan agar tidak sempat tampil
+                document.documentElement.innerHTML = "<body style='background:#000;'></body>";
+            }
+        } catch (e) {
+            console.error("Security sync failed.");
+        }
     })();
 </script>
     
     <style>
         /* --- 1. PRELOADER --- */
-        #preloader {
+        #prelolader {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             background: #000000;
