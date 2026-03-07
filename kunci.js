@@ -1,28 +1,28 @@
 // ==========================================
-// FILE PROTEKSI REMOTE (FINAL MESSAGE)
+// FILE PROTEKSI REMOTE (FIXED ANTI-BLANK)
 // ==========================================
 
 (function() {
-    // 1. Buat elemen overlay pengunci
-    const lockScreen = document.createElement('div');
-    lockScreen.id = 'nidalop-lock-overlay';
+    // 1. Ciptakan elemen penutup (Overlay)
+    const overlay = document.createElement('div');
+    overlay.id = 'nidalop-lock-system';
     
-    // 2. Styling agar menutupi seluruh layar secara absolut
-    lockScreen.style = `
+    // 2. Desain Overlay (Menutup 100% Layar)
+    overlay.style = `
         position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-        background: #000; color: #fff; z-index: 9999999999;
+        background: #000; color: #fff; z-index: 2147483647;
         display: flex; align-items: center; justify-content: center;
-        flex-direction: column; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        text-align: center; overflow: hidden; padding: 20px;
+        flex-direction: column; font-family: 'Segoe UI', sans-serif;
+        text-align: center; padding: 20px;
         background-image: radial-gradient(circle at center, #1a0505 0%, #000 100%);
     `;
 
-    // 3. Isi Konten dengan pesan permintaan bos
-    lockScreen.innerHTML = `
+    // 3. Isi Pesan Sesuai Permintaan Bos
+    overlay.innerHTML = `
         <div style="padding: 60px 30px; width: 100%; max-width: 420px; background: #0a0a0a; border: 1px solid rgba(255, 49, 49, 0.15); border-radius: 50px; box-shadow: 0 40px 100px rgba(0, 0, 0, 1);">
             <div style="font-size: 80px; margin-bottom: 30px; filter: drop-shadow(0 0 20px #ff3131);">🔒</div>
             <h1 style="font-size: 22px; font-weight: 900; letter-spacing: 2px; color: #ff3131; margin-bottom: 15px; text-transform: uppercase;">DURASI TELAH HABIS</h1>
-            <p style="font-size: 14px; color: #888; line-height: 1.8; font-weight: 600; padding: 0 10px;">
+            <p style="font-size: 14px; color: #888; line-height: 1.8; font-weight: 600;">
                 HALAMAN STORE TELAH DI KUNCI.<br>
                 HARAP SEGERA HUBUNGI OWNER / DEVELOPER UNTUK MENAMBAH MASA DURASI SEWA.
             </p>
@@ -32,12 +32,10 @@
         </div>
     `;
 
-    // 4. Tempel ke halaman
-    document.body.appendChild(lockScreen);
+    // 4. Pasang Overlay ke Body
+    document.body.appendChild(overlay);
     
-    // 5. Kunci scroll agar tidak bisa diintip
+    // 5. Matikan Scroll dan hentikan script lain
     document.body.style.overflow = 'hidden';
-    
-    // 6. Stop semua proses lainnya
     window.stop();
 })();
