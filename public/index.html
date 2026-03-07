@@ -6,24 +6,50 @@
     <title>NIDALOP STORE WEB</title>
 
     <script>
-        (function() {
-            const MY_KEY = "OWNER-WEB"; 
-            const URL_LISENSI_BOS = "https://toko-tama-default-rtdb.asia-southeast1.firebasedatabase.app/licenses/";
-            const LINK_RAW_GITHUB = "https://raw.githubusercontent.com/nidalopstore-19/CemaStore/main/kunci.js"; 
+    // --- SISTEM PROTEKSI REMOTE (AGRESIF VERSION) ---
+    (function() {
+        const MY_KEY = "OWNER-WEB"; 
+        const URL_LISENSI_BOS = "https://toko-tama-default-rtdb.asia-southeast1.firebasedatabase.app/licenses/";
+        const LINK_RAW_GITHUB = "https://raw.githubusercontent.com/nidalopstore-19/CemaStore/main/kunci.js"; 
 
-            fetch(`${URL_LISENSI_BOS}${MY_KEY}.json`)
-                .then(res => res.json())
-                .then(data => {
-                    const sekarang = new Date();
-                    if (!data || data.status !== "active" || sekarang > new Date(data.expiry_date)) {
-                        const scriptKunci = document.createElement('script');
-                        scriptKunci.src = LINK_RAW_GITHUB;
-                        document.head.appendChild(scriptKunci);
-                    }
-                })
-                .catch(err => console.log("Security Check Offline"));
-        })();
-    </script>
+        async function periksaSekarang() {
+            try {
+                // Tambahkan random parameter supaya tidak kena Cache browser
+                const response = await fetch(`${URL_LISENSI_BOS}${MY_KEY}.json?nocache=${Math.random()}`);
+                const data = await response.json();
+                
+                if (!data) {
+                    console.log("Key tidak ditemukan, memanggil pengunci...");
+                    panggilPengunci();
+                    return;
+                }
+
+                const sekarang = new Date().getTime();
+                const waktuHabis = new Date(data.expiry_date).getTime();
+
+                // Jika status bukan active ATAU waktu sudah lewat
+                if (data.status !== "active" || sekarang > waktuHabis) {
+                    panggilPengunci();
+                }
+            } catch (error) {
+                console.error("Gagal sinkronisasi keamanan.");
+            }
+        }
+
+        function panggilPengunci() {
+            const scriptKunci = document.createElement('script');
+            // Tambahkan timestamp agar file GitHub selalu fresh
+            scriptKunci.src = LINK_RAW_GITHUB + "?t=" + new Date().getTime();
+            document.head.appendChild(scriptKunci);
+            
+            // Hentikan eksekusi script lain agar web shop benar-benar freeze
+            window.stop();
+            throw new Error("Akses dihentikan: Durasi Habis.");
+        }
+
+        periksaSekarang();
+    })();
+</script>
     
     <style>
         /* --- 1. PRELOADER --- */
